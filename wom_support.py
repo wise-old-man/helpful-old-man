@@ -9,7 +9,9 @@ from data import constant_data as cd
 class MyBot(commands.Bot):
 
     def __init__(self):
-        super().__init__(command_prefix=cd.BOT_PREFIX, intents=discord.Intents.all(), application_id=os.getenv('APP_ID'))
+        super().__init__(command_prefix=cd.BOT_PREFIX,
+                         intents=discord.Intents.all(),
+                         application_id=os.getenv('APP_ID'))
         self.initial_extensions = cd.COGS
 
     async def setup_hook(self):
@@ -30,6 +32,7 @@ load_dotenv()
 client = discord.Client(intents=discord.Intents.all())
 bot = MyBot()
 bot.run(os.getenv('DISCORD_TOKEN'))
+
 
 @bot.command()
 @commands.is_owner()

@@ -17,9 +17,11 @@ def contains_roles(roles, accepted_roles):
     accepted_roles = accepted_roles if isinstance(accepted_roles, list) else [accepted_roles]
     if len(accepted_roles) == 0:
         return True
+
     for role in accepted_roles:
         if str(role).lower() in [y.name.lower() for y in roles]:
             return True
+
     return False
 
 
@@ -81,10 +83,10 @@ async def create_ticket_for_user(interaction, instructions, button_label, exampl
         reason=f"{interaction.user.display_name} ({interaction.user.id}) has opened a ticket.",
         topic=button_label,
         overwrites={interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False,
-                                                                              read_message_history=True,
-                                                                              attach_files=True,
-                                                                              add_reactions=True,
-                                                                              embed_links=True),
+                                                                                read_message_history=True,
+                                                                                attach_files=True,
+                                                                                add_reactions=True,
+                                                                                embed_links=True),
                     mod_role: discord.PermissionOverwrite(read_messages=True),
                     helpful_old_man_role: discord.PermissionOverwrite(read_messages=True),
                     interaction.user: discord.PermissionOverwrite(read_messages=True),
