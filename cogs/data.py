@@ -26,64 +26,9 @@ class Data(commands.GroupCog, name="data"):
         self.cooldown_value = 5
         self.decrement_cooldown.start()
 
-        self.sticky_message.start()
-
         self.support_title = "Need help from one of our moderators?"
         self.support_message_color = discord.Colour.dark_blue()
         self.support_footer = "As a reminder, all moderators and admins in this server volunteer to help in their free time.\nWe appreciate your patience."
-
-    async def set_latest_support_message(self, guild_id):
-        channel = du.get_channel_by_id(self.bot, discord_guild_id=guild_id, channel_id=cd.stickied_channel[guild_id])
-
-        if channel is None:
-            return
-
-        channel_messages = [message async for message in channel.history(limit=None, oldest_first=False)]
-        for message in channel_messages:
-            if message.embeds:
-                embed = message.embeds[0]
-                if embed.title == self.support_title:
-                    cd.latest_support_message[guild_id] = message.id
-                    return
-
-    @tasks.loop(seconds=5, count=None)
-    async def sticky_message(self):
-        await self.bot.wait_until_ready()
-
-        for guild_id in cd.SUPPORTED_GUILD_IDS:
-            await self.set_latest_support_message(guild_id)
-
-            channel = du.get_channel_by_id(self.bot, discord_guild_id=guild_id, channel_id=cd.stickied_channel[guild_id])
-
-            if channel is None:
-                return
-
-            channel_messages = [message async for message in channel.history(limit=None, oldest_first=False)]
-            questions_channel = du.get_channel_by_name(self.bot, discord_guild_id=guild_id, channel_name='questions')
-            questions_channel_mention_str = f"\n\nIf you'd like to ask a quick question, you may do so in the {questions_channel.mention} channel." if questions_channel else ''
-
-            button_breakdown = f'\n\n**Groups** {cd.ARROW} Assistance on group related things\n- Verify my group\n- Reset my verification code\n- Remove me from a group\n- Other\n\n**Name Changes** {cd.ARROW} Help with name related things\n- Approve a pending name change\n- Delete name change history\n- Other\n\n**API Key** {cd.ARROW} Request an API key for development\n\n**Other** {cd.ARROW} Request assistance for all other inquiries'
-            support_description = f"Select a support category below to request assistance.{button_breakdown}{questions_channel_mention_str}"
-
-            if len(channel_messages) == 0:
-                embed = discord.Embed(title=self.support_title, color=self.support_message_color)
-                embed.description = support_description
-                support_message = await channel.send(embed=embed, view=vw.PViewSupport())
-                cd.latest_support_message = support_message.id
-                return
-
-            if channel_messages[0].id != cd.latest_support_message[guild_id]:
-                if cd.latest_support_message[guild_id] is not None:
-                    for message in channel_messages:
-                        if message.id == cd.latest_support_message[guild_id]:
-                            await message.delete()
-                            break
-
-                embed = discord.Embed(title=self.support_title, color=self.support_message_color)
-                embed.description = support_description
-                embed.set_footer(text=self.support_footer)
-                support_message = await channel.send(embed=embed, view=vw.PViewSupport())
-                cd.latest_support_message[guild_id] = support_message.id
 
     @tasks.loop(seconds=1, count=None)
     async def decrement_cooldown(self):
