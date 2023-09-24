@@ -1,3 +1,7 @@
+import datetime
+import io
+import traceback
+
 import discord
 import views as vw
 
@@ -109,9 +113,34 @@ async def create_ticket_for_user(interaction, instructions, button_label, exampl
     return new_text_channel
 
 
-async def send_log_message(interaction, content, mod):
+async def send_log_message(interaction, content, mod, channel=None):
     mod_logs_channel = get_channel_by_name(interaction.client, interaction.guild.id, 'mod-logs')
     embed = discord.Embed(title=None, description=content)
     embed.set_footer(text=f"Mod: {mod.display_name}")
-    await mod_logs_channel.send(embed=embed) if mod_logs_channel else None
+
+    if channel:
+        archived_data = await archive_channel_messages(channel)
+        timestamp = datetime.datetime.now().strftime("_%Y_%m_%d_%Hh_%Mm_%Ss")
+        file_name = f'{channel}' + timestamp + '.txt'
+        buf = io.BytesIO(bytes(archived_data, 'utf-8'))
+        f = discord.File(buf, filename=file_name)
+
     print(f"Message sent: {content} Footer: Mod: {mod.display_name}")
+    return await mod_logs_channel.send(embed=embed, file=f if channel else None) if mod_logs_channel else None
+
+
+async def archive_channel_messages(channel_being_archived):
+    data = ""
+    try:
+        for message in [message async for message in channel_being_archived.history(limit=None, oldest_first=True)]:
+            datetime_info = datetime.datetime.strftime(message.created_at, '%b %d, %Y at %I:%M%p')
+            datetime_info_timestamp = f"<t:{str(message.created_at.timestamp()).split('.')[0]}:F>"
+
+            data += f"{datetime_info} {datetime_info_timestamp}\n{message.author.display_name.split('/')[0].strip()} - {message.author.id}\n{message.clean_content}\n\n"
+
+    except:
+        traceback.print_exc()
+        pass
+
+    finally:
+        return data

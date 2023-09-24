@@ -146,10 +146,12 @@ class PViewSupport_Message_Close_Channel(discord.ui.View):
         await interaction.response.defer()
         if du.contains_roles(interaction.user.roles, 'Moderator'):
             channel_user = await du.get_user_by_original_message(interaction.channel)
-            await interaction.channel.delete()
             await du.send_log_message(interaction=interaction,
                                       content=f"({interaction.channel.topic}) Ticket channel closed for user:\n{channel_user.display_name if channel_user else '?'} - {channel_user.mention if channel_user else '?'}",
-                                      mod=interaction.user)
+                                      mod=interaction.user,
+                                      channel=interaction.channel)
+            await interaction.channel.delete()
+
         else:
             await interaction.followup.send(ephemeral=True,
                                             content="You do not have the required permissions to delete the channel.")
