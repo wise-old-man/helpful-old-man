@@ -1,7 +1,11 @@
 import typing as t
 from os import environ
 
+from dotenv import load_dotenv
+
 __all__ = ("Config", "Constants")
+
+load_dotenv()
 
 
 @t.final
