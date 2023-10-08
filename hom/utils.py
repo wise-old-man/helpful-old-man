@@ -195,16 +195,20 @@ async def send_log_message(
     mod_logs_channel = get_channel_by_name(interaction.client, interaction.guild.id, "mod-logs")
     embed = discord.Embed(title=None, description=content)
     embed.set_footer(text=f"Mod: {mod.display_name}")
+    file: t.Optional[discord.File] = None
 
-    if channel and mod_logs_channel:
+    if channel:
         archived_data = await archive_channel_messages(channel)
         timestamp = datetime.datetime.now().strftime("_%Y_%m_%d_%Hh_%Mm_%Ss")
         file_name = f"{channel}" + timestamp + ".txt"
         buf = io.BytesIO(bytes(archived_data, "utf-8"))
-        f = discord.File(buf, filename=file_name)
+        file = discord.File(buf, filename=file_name)
 
-        assert isinstance(mod_logs_channel, discord.TextChannel)
-        return await mod_logs_channel.send(embed=embed, file=f)
+    if mod_logs_channel:
+        if file:
+            return await mod_logs_channel.send(embed=embed, file=file)
+        else:
+            return await mod_logs_channel.send(embed=embed)
 
     return None
 
