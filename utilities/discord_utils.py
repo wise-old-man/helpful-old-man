@@ -135,7 +135,6 @@ async def archive_channel_messages(channel_being_archived):
         for message in [message async for message in channel_being_archived.history(limit=None, oldest_first=True)]:
             datetime_info = datetime.datetime.strftime(message.created_at, '%b %d, %Y at %I:%M%p')
             datetime_info_timestamp = f"<t:{str(message.created_at.timestamp()).split('.')[0]}:F>"
-
             data += f"{datetime_info} {datetime_info_timestamp}\n{message.author.display_name.split('/')[0].strip()} - {message.author.id}\n{message.clean_content}\n\n"
 
     except:
