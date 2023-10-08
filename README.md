@@ -22,12 +22,12 @@ $ pip install -r requirements.dev.txt
 Copy the example `.env` file
 
 ```bash
-$ cp .env.example .env
+$ cp .example.env .env
 ```
 
 Update the values in `.env` for your development bot
 
-Ensure the bot has the proper permissions and intents (all) 
+Ensure the bot has the proper permissions and intents (all)
 
 Run the bot
 
