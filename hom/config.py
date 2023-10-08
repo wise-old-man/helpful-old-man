@@ -13,7 +13,7 @@ class Config:
     __slots__ = ()
 
     DISCORD_TOKEN: t.Final[str] = environ["DISCORD_TOKEN"]
-    STICKY_CHANNEL: t.Final[int] = int(environ["STICKY_CHANNEL"])
+    SUPPORT_CHANNEL: t.Final[int] = int(environ["SUPPORT_CHANNEL"])
     TICKET_CATEGORY: t.Final[int] = int(environ["TICKET_CATEGORY"])
 
     def __init__(self) -> None:
