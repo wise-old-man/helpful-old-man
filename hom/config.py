@@ -35,4 +35,4 @@ class Constants:
     )
 
     def __init__(self) -> None:
-        raise RuntimeError("Config should not be instantiated.")
+        raise RuntimeError("Constants should not be instantiated.")

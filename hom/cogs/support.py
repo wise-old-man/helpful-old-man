@@ -179,7 +179,7 @@ class Support(commands.GroupCog, name="support"):
 
         channel = utils.get_channel_by_id(self.bot, interaction.guild.id, Config.SUPPORT_CHANNEL)
         if not channel:
-            await interaction.followup.send("Couldn't find sticky channel, this is a bug.")
+            await interaction.followup.send("Couldn't find support channel, this is a bug.")
             return None
 
         await message.reply(
