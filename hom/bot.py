@@ -20,5 +20,18 @@ class Bot(commands.Bot):
         user = self.user.display_name if self.user else "Bot"
         print(f"{user} has connected to Discord!")
 
-    async def sync(self, guild_id: int) -> None:
+    async def sync(self) -> None:
         await self.tree.sync()
+
+    async def on_command_error(  # type: ignore
+        self, ctx: commands.Context[commands.Bot], exc: commands.CommandError
+    ) -> None:
+        if any(isinstance(exc, e) for e in (commands.CommandNotFound, commands.BadArgument)):
+            return
+
+        if isinstance(exc, (commands.MissingRole, commands.CheckFailure)):
+            await ctx.reply("You are not allowed to do that.")
+        elif isinstance(exc, commands.BotMissingPermissions):
+            await ctx.reply("I don't have the permissions necessary for that.")
+        else:
+            raise exc
