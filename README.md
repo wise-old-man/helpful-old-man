@@ -31,7 +31,6 @@ Ensure the bot has the proper permissions and intents (all)
 
 Run the bot
 
-
 ```bash
 $ python -m hom
 ```
