@@ -12,7 +12,6 @@ load_dotenv()
 class Config:
     __slots__ = ()
 
-    WOM_GUILD: t.Final[int] = int(environ["WOM_GUILD"])
     DISCORD_TOKEN: t.Final[str] = environ["DISCORD_TOKEN"]
     STICKY_CHANNEL: t.Final[int] = int(environ["STICKY_CHANNEL"])
     TICKET_CATEGORY: t.Final[int] = int(environ["TICKET_CATEGORY"])
