@@ -47,6 +47,7 @@ def install(*packages: str) -> InjectorT:
                 session.error(f"Invalid package install - {e}")
 
             return func(session)
+
         return wrapper
 
     return inner
@@ -68,11 +69,10 @@ def formatting(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 @install("flake8", "isort")
 def imports(session: nox.Session) -> None:
-    session.run("isort", "hom", "tests", "-cq", "-s", "__init__.py")
+    session.run("isort", "hom", "-cq", "-s", "__init__.py")
     session.run(
         "flake8",
         "hom",
-        "tests",
         "--select",
         "F4",
         "--extend-ignore",
