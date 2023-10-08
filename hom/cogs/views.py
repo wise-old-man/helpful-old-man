@@ -15,7 +15,7 @@ class Support(discord.ui.View):
         custom_id="persistent_view:groups_instructions",
     )
     async def groups_instructions(
-        self, interaction: discord.Interaction, _: discord.ui.Button["Support"]
+        self, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button["Support"]
     ) -> None:
         await interaction.response.send_message(
             view=SupportGroup(),
@@ -29,7 +29,7 @@ class Support(discord.ui.View):
         custom_id="persistent_view:names_instructions",
     )
     async def names_instructions(
-        self, interaction: discord.Interaction, _: discord.ui.Button["Support"]
+        self, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button["Support"]
     ) -> None:
         await interaction.response.send_message(
             view=SupportNames(),
@@ -43,10 +43,14 @@ class Support(discord.ui.View):
         custom_id="persistent_view:api_key",
     )
     async def api_key(
-        self, interaction: discord.Interaction, button: discord.ui.Button["Support"]
+        self, interaction: discord.Interaction[commands.Bot], button: discord.ui.Button["Support"]
     ) -> None:
+        instructions = (
+            "If you'd like to get an API Key, please tell us your project's name and we'll create "
+            f"you a new API key.\n\n{Constants.FOOTER}"
+        )
+
         await interaction.response.defer()
-        instructions = f"If you'd like to get an API Key, please tell us your project's name and we'll create you a new API key.\n\n{cd.view_footer}"
         await utils.create_ticket_for_user(interaction, instructions, button.label)
 
     @discord.ui.button(
@@ -55,7 +59,7 @@ class Support(discord.ui.View):
         custom_id="persistent_view:other_instructions",
     )
     async def other_instructions(
-        self, interaction: discord.Interaction, button: discord.ui.Button["Support"]
+        self, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button["Support"]
     ) -> None:
         await interaction.response.defer()
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
@@ -63,7 +67,7 @@ class Support(discord.ui.View):
 
 
 class Verify(discord.ui.View):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(timeout=None)
 
     @discord.ui.button(
@@ -72,18 +76,18 @@ class Verify(discord.ui.View):
         custom_id="persistent_view:verify_yes",
     )
     async def verify_yes(
-        self, interaction: discord.Interaction, button: discord.ui.Button["Verify"]
+        self, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button["Verify"]
     ) -> None:
         await interaction.response.send_message(
-            content=f"{Constants.COMPLETE} Closing this ticket.", ephemeral=True
+            f"{Constants.COMPLETE} Closing this ticket.", ephemeral=True
         )
 
-        assert isinstance(interaction.channel, discord.guild.GuildChannel)
+        assert isinstance(interaction.channel, discord.TextChannel)
         await interaction.channel.delete()
 
 
 class SupportGroup(discord.ui.View):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(timeout=None)
 
     @discord.ui.button(
@@ -92,7 +96,9 @@ class SupportGroup(discord.ui.View):
         custom_id="persistent_view:group_verify",
     )
     async def group_verify(
-        self, interaction: discord.Interaction, button: discord.ui.Button["SupportGroup"]
+        self,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button["SupportGroup"],
     ) -> None:
         instructions = (
             "To verify your group please provide a screenshot to prove ownership. We have "
@@ -118,7 +124,9 @@ class SupportGroup(discord.ui.View):
         custom_id="persistent_view:group_reset_code",
     )
     async def group_reset_code(
-        self, interaction: discord.Interaction, button: discord.ui.Button["SupportGroup"]
+        self,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button["SupportGroup"],
     ) -> None:
         instructions = (
             "To reset your verification code please provide a screenshot to prove ownership. "
@@ -146,7 +154,9 @@ class SupportGroup(discord.ui.View):
         custom_id="persistent_view:group_remove",
     )
     async def group_remove(
-        self, interaction: discord.Interaction, button: discord.ui.Button["SupportGroup"]
+        self,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button["SupportGroup"],
     ) -> None:
         instructions = (
             "To remove yourself from a group, please provide us with a screenshot containing:"
@@ -168,7 +178,9 @@ class SupportGroup(discord.ui.View):
         custom_id="persistent_view:group_other",
     )
     async def group_other(
-        self, interaction: discord.Interaction, button: discord.ui.Button["SupportGroup"]
+        self,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button["SupportGroup"],
     ) -> None:
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
 
@@ -179,7 +191,7 @@ class SupportGroup(discord.ui.View):
 
 
 class SupportNames(discord.ui.View):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(timeout=None)
 
     @discord.ui.button(
@@ -188,7 +200,9 @@ class SupportNames(discord.ui.View):
         custom_id="persistent_view:names_approve",
     )
     async def names_approve(
-        self, interaction: discord.Interaction, button: discord.ui.Button["SupportNames"]
+        self,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button["SupportNames"],
     ) -> None:
         instructions = (
             "Some name changes get skipped, as they can’t be auto-approved by our system and "
@@ -210,7 +224,9 @@ class SupportNames(discord.ui.View):
         custom_id="persistent_view:names_delete",
     )
     async def names_delete(
-        self, interaction: discord.Interaction, button: discord.ui.Button["SupportNames"]
+        self,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button["SupportNames"],
     ) -> None:
         instructions = (
             "To request a name change history deletion, please provide us with:\n\n- Your in-game "
@@ -231,7 +247,9 @@ class SupportNames(discord.ui.View):
         custom_id="persistent_view:names_other",
     )
     async def names_other(
-        self, interaction: discord.Interaction, button: discord.ui.Button["SupportNames"]
+        self,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button["SupportNames"],
     ) -> None:
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
 
@@ -242,7 +260,7 @@ class SupportNames(discord.ui.View):
 
 
 class SupportMessage(discord.ui.View):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(timeout=None)
 
     @discord.ui.button(
@@ -252,11 +270,13 @@ class SupportMessage(discord.ui.View):
         custom_id="persistent_view:message_close",
     )
     async def message_close(
-        self, interaction: discord.Interaction, _: discord.ui.Button["SupportMessage"]
+        self,
+        interaction: discord.Interaction[commands.Bot],
+        _: discord.ui.Button["SupportMessage"],
     ) -> None:
         embed = discord.Embed(description=f"{interaction.user.mention} has closed the ticket.")
 
-        assert isinstance(interaction.channel, discord.guild.GuildChannel)
+        assert isinstance(interaction.channel, discord.TextChannel)
         assert isinstance(interaction.user, discord.Member)
         await interaction.response.defer()
         await interaction.channel.set_permissions(interaction.user, overwrite=None)
@@ -266,7 +286,7 @@ class SupportMessage(discord.ui.View):
 
 
 class SupportMessageCloseChannel(discord.ui.View):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(timeout=None)
 
     @discord.ui.button(
@@ -277,7 +297,7 @@ class SupportMessageCloseChannel(discord.ui.View):
     )
     async def message_close_channel(
         self,
-        interaction: discord.Interaction,
+        interaction: discord.Interaction[commands.Bot],
         _: discord.ui.Button["SupportMessageCloseChannel"],
     ) -> None:
         await interaction.response.defer()
