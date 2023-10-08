@@ -23,9 +23,6 @@ def parse_dependencies(*suffixes: str) -> Dict[str, str]:
                     attrs = match.groupdict()
                     package, version = attrs["package"], attrs["version"]
 
-                    if package == "uvloop" and os.name == "nt":
-                        continue
-
                     if package in deps:
                         raise ValueError(f"Duplicate package {package!r} found in requirements.")
 
@@ -38,6 +35,9 @@ DEPS = parse_dependencies("", ".dev")
 
 
 def install(*packages: str) -> InjectorT:
+    if os.name == "nt" and "uvloop" in packages:
+        packages = tuple(filter(lambda p: p != "uvloop", packages))
+
     def inner(func: SessionT) -> SessionT:
         @functools.wraps(func)
         def wrapper(session: nox.Session) -> None:
