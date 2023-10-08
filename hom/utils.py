@@ -40,17 +40,19 @@ def get_category(guild: discord.Guild, channel_name: str) -> t.Optional[discord.
 
 def get_channel_by_id(
     bot: commands.Bot, guild_id: int, channel_id: int, channel_type: str = "text"
-) -> t.Optional[discord.guild.GuildChannel]:
+) -> t.Optional[discord.TextChannel]:
     if guild_id not in [guild.id for guild in bot.guilds]:
         return None
 
     if not (guild := bot.get_guild(guild_id)):
         return None
 
-    return discord.utils.find(
+    channel = discord.utils.find(
         lambda c: c.id == channel_id and str(c.type).lower() == channel_type,
         guild.channels,
     )
+
+    return t.cast(discord.TextChannel, channel) if channel else None
 
 
 def get_channel_by_name(
@@ -58,18 +60,20 @@ def get_channel_by_name(
     guild_id: int,
     channel_name: str,
     channel_type: str = "text",
-) -> t.Optional[discord.guild.GuildChannel]:
+) -> t.Optional[discord.TextChannel]:
     if not any(guild_id == guild.id for guild in bot.guilds):
         return None
 
     if not (guild := bot.get_guild(guild_id)):
         return None
 
-    return discord.utils.find(
+    channel = discord.utils.find(
         lambda c: normalize(c.name) == normalize(channel_name)
         and str(c.type).lower() == channel_type,
         guild.channels,
     )
+
+    return t.cast(discord.TextChannel, channel) if channel else None
 
 
 async def get_user_by_original_message(
@@ -82,19 +86,19 @@ async def get_user_by_original_message(
 
 def get_user_ticket_channel(
     guild: discord.Guild, user: discord.User | discord.Member
-) -> t.Optional[discord.guild.GuildChannel]:
+) -> t.Optional[discord.TextChannel]:
     if category := get_category(guild, "Tickets"):  # TODO: Make this channel_id?
         for channel in category.channels:
             user_perms = channel.overwrites_for(user)
 
             if user_perms.view_channel:
-                return channel
+                return t.cast(discord.TextChannel, channel)
 
     return None
 
 
 async def create_ticket_for_user(
-    interaction: discord.Interaction,
+    interaction: discord.Interaction[commands.Bot],
     instructions: str,
     button_label: t.Optional[str],
     example_url: t.Optional[str] = None,
@@ -106,7 +110,7 @@ async def create_ticket_for_user(
     if existing_ticket_channel:
         msg_content = f":envelope:  Click [here]({existing_ticket_channel.jump_url}) to view your open ticket."
         await interaction.followup.send(content=msg_content, ephemeral=True)
-        return t.cast(discord.TextChannel, existing_ticket_channel)
+        return existing_ticket_channel
 
     channel_name = f"help-{interaction.user.display_name[:15]}"
     tickets_category = get_category(interaction.guild, "Tickets")  # TODO: Make this channel_id?
@@ -166,10 +170,10 @@ async def create_ticket_for_user(
 
 
 async def send_log_message(
-    interaction: discord.Interaction,
+    interaction: discord.Interaction[commands.Bot],
     content: str,
     mod: discord.User | discord.ClientUser | discord.Member,
-    channel: t.Optional[discord.guild.GuildChannel] = None,
+    channel: t.Optional[discord.TextChannel] = None,
 ) -> t.Optional[discord.Message]:
     assert interaction.guild
     mod_logs_channel = get_channel_by_name(interaction.client, interaction.guild.id, "mod-logs")
@@ -189,17 +193,18 @@ async def send_log_message(
     return None
 
 
-async def archive_channel_messages(channel: discord.guild.GuildChannel) -> str:
-    assert isinstance(channel, discord.TextChannel)
+async def archive_channel_messages(channel: discord.TextChannel) -> str:
     data = ""
 
     try:
-        for message in [
-            message async for message in channel.history(limit=None, oldest_first=True)
-        ]:
+        async for message in channel.history(limit=None, oldest_first=True):
             datetime_info = datetime.datetime.strftime(message.created_at, "%b %d, %Y at %I:%M%p")
             datetime_info_timestamp = f"<t:{str(message.created_at.timestamp()).split('.')[0]}:F>"
-            data += f"{datetime_info} {datetime_info_timestamp}\n{message.author.display_name.split('/')[0].strip()} - {message.author.id}\n{message.clean_content}\n\n"
+            data += (
+                f"{datetime_info} {datetime_info_timestamp}\n"
+                f"{message.author.display_name.split('/')[0].strip()} - "
+                f"{message.author.id}\n{message.clean_content}\n\n"
+            )
 
     except:
         traceback.print_exc()
