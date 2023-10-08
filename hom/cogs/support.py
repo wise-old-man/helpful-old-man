@@ -12,6 +12,8 @@ from hom.cogs import views
 from hom.config import Config
 from hom.config import Constants
 
+__all__ = ("Support",)
+
 
 class Support(commands.GroupCog, name="support"):
     def __init__(self, bot: Bot) -> None:
