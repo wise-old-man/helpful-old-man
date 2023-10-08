@@ -1,8 +1,8 @@
 -r requirements.txt
 
-black==23.7.0
-flake8==6.0.0
+black==23.9.1
+flake8==6.1.0
 isort==5.12.0
-mypy==1.4.1
+mypy==1.5.1
 nox==2023.4.22
-pyright==1.1.317
+pyright==1.1.330.post0
