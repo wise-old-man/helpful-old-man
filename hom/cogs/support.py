@@ -107,15 +107,12 @@ class Support(commands.GroupCog, name="support"):
         invert: bool = False,
     ) -> bool:
         if not await self.mod_check(interaction):
-            print("Mod check failed")
             return False
 
         if not await self.category_check(interaction, category_message, invert=invert):
-            print("Category check failed")
             return False
 
         if not await self.concurrency_check(interaction):
-            print("Concurrency check failed")
             return False
 
         return True
