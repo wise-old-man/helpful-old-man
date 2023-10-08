@@ -7,6 +7,7 @@ import discord
 from discord.ext import commands
 
 from hom.cogs import views
+from hom.config import Constants
 
 
 def normalize(obj: t.Any) -> str:
@@ -212,3 +213,36 @@ async def archive_channel_messages(channel: discord.TextChannel) -> str:
 
     finally:
         return data
+
+
+def build_support_embed(bot: commands.Bot, guild_id: int) -> discord.Embed:
+    questions_message = ""
+
+    if questions_channel := get_channel_by_name(bot, guild_id, "questions"):
+        questions_message = (
+            "\n\nIf you'd like to ask a quick question, you may do so in the "
+            f"{questions_channel.mention} channel."
+        )
+
+    button_synopsis = (
+        f"\n\n**Groups** {Constants.ARROW} Assistance on group related things\n- Verify my group\n"
+        "- Reset my verification code\n- Remove me from a group\n- Other\n\n**Name Changes** "
+        f"{Constants.ARROW} Help with name related things\n- Approve a pending name change\n- "
+        f"Delete name change history\n- Other\n\n**API Key** {Constants.ARROW} Request an API key "
+        f"for development\n\n**Other** {Constants.ARROW} Request assistance for all other inquiries"
+    )
+
+    footer = (
+        "As a reminder, all moderators and admins in this server volunteer to help in their "
+        "free time.\nWe appreciate your patience."
+    )
+
+    suffix = f"{button_synopsis}{questions_message}"
+    embed = discord.Embed(
+        title="Need help from one of our moderators?",
+        color=discord.Colour.dark_blue(),
+        description=f"Select a support category below to request assistance.{suffix}",
+    )
+
+    embed.set_footer(text=footer)
+    return embed

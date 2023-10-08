@@ -40,6 +40,30 @@ class Support(commands.GroupCog, name="support"):
             )
         )
 
+    @commands.has_role("Moderator")
+    @commands.command(name="sync")
+    async def sync(self, ctx: commands.Context[commands.Bot]) -> None:
+        await self.bot.sync()
+        await ctx.channel.send("Commands synced!")
+
+    @app_commands.guild_only()  # type: ignore
+    @app_commands.describe(channel="The channel to send the embed to.")
+    @app_commands.command(
+        name="send", description="Send the support embed to a channel (Admin only)."
+    )
+    async def send(
+        self, interaction: discord.Interaction[commands.Bot], channel: discord.TextChannel
+    ) -> None:
+        await interaction.response.defer(ephemeral=True)
+        assert interaction.guild
+
+        if not await self.mod_check(interaction):
+            return None
+
+        embed = utils.build_support_embed(self.bot, interaction.guild.id)
+        message = await channel.send(embed=embed, view=views.Support())
+        await interaction.followup.send(f"Done! {message.jump_url}", ephemeral=True)
+
     async def clear_ratelimit(self, user_id: int) -> None:
         await asyncio.sleep(self.ratelimit)
         # del schedules deletion but does not guarantee the GC will remove the
@@ -165,13 +189,6 @@ class Support(commands.GroupCog, name="support"):
             f"{message.author.mention} has been redirected to {channel.mention}.",
             ephemeral=True,
         )
-
-    @commands.has_role("Moderator")
-    @commands.command(name="sync")
-    async def initial_sync(self, ctx: commands.Context[commands.Bot]) -> None:
-        assert ctx.guild
-        await self.bot.sync(ctx.guild.id)
-        await ctx.channel.send("Commands synced!")
 
 
 async def setup(bot: Bot) -> None:
