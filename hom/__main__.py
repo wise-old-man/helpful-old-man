@@ -7,7 +7,8 @@ if __name__ == "__main__":
     if os.name != "nt":
         import uvloop
 
-        # Faster asyncio event loop on unix-like systems
+        # Faster drop in replacement for the asyncio event loop
+        # Only works on unix-like systems
         uvloop.install()
 
     bot = Bot()
