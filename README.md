@@ -1,6 +1,8 @@
 # HOM
 
-The helpful old man!
+The Helpful Old Man!
+
+A discord bot used in the Wise Old Man Discord server for facilitating support tickets.
 
 ## Contributing
 
@@ -34,3 +36,11 @@ Run the bot
 ```bash
 $ python -m hom
 ```
+
+Once the bot is running, make sure to run the `!sync` command in your dev server.
+This syncs the bots application commands with Discord.
+
+## License
+
+Helpful Old Man is licensed under the [MIT License]
+(https://github.com/wise-old-man/helpful-old-man/blob/main/LICENSE).
