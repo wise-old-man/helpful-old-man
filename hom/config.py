@@ -8,15 +8,20 @@ __all__ = ("Config", "Constants")
 load_dotenv()
 
 
+def _int(var: str) -> int:
+    return int(environ[var])
+
+
 @t.final
 class Config:
     __slots__ = ()
 
     DISCORD_TOKEN: t.Final[str] = environ["DISCORD_TOKEN"]
-    SUPPORT_CHANNEL: t.Final[int] = int(environ["SUPPORT_CHANNEL"])
-    TICKET_CATEGORY: t.Final[int] = int(environ["TICKET_CATEGORY"])
-    MOD_LOG_CHANNEL: t.Final[int] = int(environ["MOD_LOG_CHANNEL"])
-    MOD_ROLE: t.Final[int] = int(environ["MOD_ROLE"])
+    SUPPORT_CHANNEL: t.Final[int] = _int("SUPPORT_CHANNEL")
+    TICKET_CATEGORY: t.Final[int] = _int("TICKET_CATEGORY")
+    MOD_LOG_CHANNEL: t.Final[int] = _int("MOD_LOG_CHANNEL")
+    QUESTIONS_CHANNEL: t.Final[int] = _int("QUESTIONS_CHANNEL")
+    MOD_ROLE: t.Final[int] = _int("MOD_ROLE")
 
     def __init__(self) -> None:
         raise RuntimeError("Config should not be instantiated.")
