@@ -20,9 +20,6 @@ class Bot(commands.Bot):
         user = self.user.display_name if self.user else "Bot"
         print(f"{user} has connected to Discord!")
 
-    async def sync(self) -> None:
-        await self.tree.sync()
-
     async def on_command_error(  # type: ignore
         self, ctx: commands.Context[commands.Bot], exc: commands.CommandError
     ) -> None:

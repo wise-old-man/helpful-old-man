@@ -45,7 +45,7 @@ class Support(commands.GroupCog, name="support"):
     @commands.has_role("Moderator")
     @commands.command(name="sync")
     async def sync(self, ctx: commands.Context[commands.Bot]) -> None:
-        await self.bot.sync()
+        await self.bot.tree.sync()
         await ctx.channel.send("Commands synced!")
 
     @app_commands.guild_only()  # type: ignore
