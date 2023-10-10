@@ -284,10 +284,10 @@ class SupportMessage(discord.ui.View):
         interaction: discord.Interaction[commands.Bot],
         _: discord.ui.Button["SupportMessage"],
     ) -> None:
-        embed = discord.Embed(description=f"{interaction.user.mention} has closed the ticket.")
-
         assert isinstance(interaction.channel, discord.TextChannel)
         assert isinstance(interaction.user, discord.Member)
+
+        embed = discord.Embed(description=f"{interaction.user.mention} has closed the ticket.")
         await interaction.response.defer()
         await interaction.channel.set_permissions(interaction.user, overwrite=None)
         await interaction.followup.send(
