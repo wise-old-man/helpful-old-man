@@ -31,7 +31,7 @@ class Bot(commands.Bot):
 
         if isinstance(exc, (commands.MissingRole, commands.CheckFailure)):
             await ctx.reply("You are not allowed to do that.")
-        elif isinstance(exc, commands.BotMissingPermissions):
+        elif isinstance(exc, (commands.BotMissingPermissions, discord.Forbidden)):
             await ctx.reply("I don't have the permissions necessary for that.")
         else:
             raise exc
