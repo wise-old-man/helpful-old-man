@@ -1,4 +1,5 @@
 import datetime
+import functools
 import io
 import traceback
 import typing as t
@@ -7,89 +8,36 @@ import discord
 from discord.ext import commands
 
 from hom.cogs import views
+from hom.config import Config
 from hom.config import Constants
 
 __all__ = (
     "archive_channel_messages",
     "build_support_embed",
-    "contains_roles",
     "create_ticket_for_user",
     "get_category",
-    "get_channel_by_id",
-    "get_channel_by_name",
-    "get_role_by_name",
+    "get_channel",
+    "get_role",
     "get_user_by_original_message",
     "get_user_ticket_channel",
-    "normalize",
     "send_log_message",
 )
 
 
-def normalize(obj: t.Any) -> str:
-    return str(obj).lower().replace(" ", "_").replace("-", "_")
+def get_category(guild: discord.Guild, category_id: int) -> t.Optional[discord.CategoryChannel]:
+    # The builtin `next` short circuits as soon as it finds a match reducing iterations
+    return next((c for c in guild.categories if c.id == category_id), None)
 
 
-def get_role_by_name(
-    guild: discord.Guild, target_role: discord.Role | str
-) -> t.Optional[discord.Role]:
-    role_name_to_find = normalize(target_role)
-
-    for role in guild.roles:
-        if normalize(role) == role_name_to_find:
-            return role
-
-    return None
+def get_role(guild: discord.Guild, role_id: int) -> t.Optional[discord.Role]:
+    return next((r for r in guild.roles if r.id == role_id), None)
 
 
-def contains_roles(roles: t.List[discord.Role], *accepted_roles: discord.Role | str) -> bool:
-    lower_roles = [normalize(r) for r in roles]
-    return any(normalize(r) in lower_roles for r in accepted_roles) or not accepted_roles
-
-
-def get_category(guild: discord.Guild, channel_name: str) -> t.Optional[discord.CategoryChannel]:
-    channel_name = normalize(channel_name)
-    return discord.utils.find(
-        lambda c: normalize(c.name) == channel_name,
-        guild.categories,  # TODO: Changed this to categories, is that right?
+def get_channel(guild: discord.Guild, channel_id: int) -> t.Optional[discord.TextChannel]:
+    return t.cast(
+        discord.TextChannel,
+        next((c for c in guild.channels if c.id == channel_id), None),
     )
-
-
-def get_channel_by_id(
-    bot: commands.Bot, guild_id: int, channel_id: int, channel_type: str = "text"
-) -> t.Optional[discord.TextChannel]:
-    if guild_id not in [guild.id for guild in bot.guilds]:
-        return None
-
-    if not (guild := bot.get_guild(guild_id)):
-        return None
-
-    channel = discord.utils.find(
-        lambda c: c.id == channel_id and str(c.type).lower() == channel_type,
-        guild.channels,
-    )
-
-    return t.cast(discord.TextChannel, channel) if channel else None
-
-
-def get_channel_by_name(
-    bot: commands.Bot | discord.Client,
-    guild_id: int,
-    channel_name: str,
-    channel_type: str = "text",
-) -> t.Optional[discord.TextChannel]:
-    if not any(guild_id == guild.id for guild in bot.guilds):
-        return None
-
-    if not (guild := bot.get_guild(guild_id)):
-        return None
-
-    channel = discord.utils.find(
-        lambda c: normalize(c.name) == normalize(channel_name)
-        and str(c.type).lower() == channel_type,
-        guild.channels,
-    )
-
-    return t.cast(discord.TextChannel, channel) if channel else None
 
 
 async def get_user_by_original_message(
@@ -103,7 +51,7 @@ async def get_user_by_original_message(
 def get_user_ticket_channel(
     guild: discord.Guild, user: discord.User | discord.Member
 ) -> t.Optional[discord.TextChannel]:
-    if category := get_category(guild, "Tickets"):  # TODO: Make this channel_id?
+    if category := get_category(guild, Config.TICKET_CATEGORY):
         for channel in category.channels:
             user_perms = channel.overwrites_for(user)
 
@@ -120,20 +68,18 @@ async def create_ticket_for_user(
     example_url: t.Optional[str] = None,
 ) -> discord.TextChannel:
     assert interaction.guild
-    assert isinstance(interaction.user, discord.Member)
-    existing_ticket_channel = get_user_ticket_channel(interaction.guild, interaction.user)
 
+    existing_ticket_channel = get_user_ticket_channel(interaction.guild, interaction.user)
     if existing_ticket_channel:
         msg_content = f":envelope:  Click [here]({existing_ticket_channel.jump_url}) to view your open ticket."
         await interaction.followup.send(content=msg_content, ephemeral=True)
         return existing_ticket_channel
 
     channel_name = f"help-{interaction.user.display_name[:15]}"
-    tickets_category = get_category(interaction.guild, "Tickets")  # TODO: Make this channel_id?
-    mod_role = get_role_by_name(interaction.guild, "Moderator")
-    helpful_old_man_role = get_role_by_name(interaction.guild, "Helpful Old Man")
-    assert helpful_old_man_role
-    assert mod_role
+    tickets_category = get_category(interaction.guild, Config.TICKET_CATEGORY)
+    if not (mod_role := get_role(interaction.guild, Config.MOD_ROLE)):
+        await interaction.followup.send("The moderator role is missing from the server.")
+        raise RuntimeError(f"Couldn't find mod role with ID: {Config.MOD_ROLE}")
 
     new_text_channel = await interaction.guild.create_text_channel(
         name=channel_name,
@@ -141,6 +87,11 @@ async def create_ticket_for_user(
         reason=f"{interaction.user.display_name} ({interaction.user.id}) has opened a ticket.",
         topic=button_label or "Unknown (This is a bug)",
         overwrites={
+            mod_role: discord.PermissionOverwrite(read_messages=True),
+            interaction.guild.me: discord.PermissionOverwrite(read_messages=True),
+            t.cast(discord.Member, interaction.user): discord.PermissionOverwrite(
+                read_messages=True
+            ),
             interaction.guild.default_role: discord.PermissionOverwrite(
                 read_messages=False,
                 read_message_history=True,
@@ -148,9 +99,6 @@ async def create_ticket_for_user(
                 add_reactions=True,
                 embed_links=True,
             ),
-            mod_role: discord.PermissionOverwrite(read_messages=True),
-            helpful_old_man_role: discord.PermissionOverwrite(read_messages=True),
-            interaction.user: discord.PermissionOverwrite(read_messages=True),
         },
     )
 
@@ -192,7 +140,8 @@ async def send_log_message(
     channel: t.Optional[discord.TextChannel] = None,
 ) -> t.Optional[discord.Message]:
     assert interaction.guild
-    mod_logs_channel = get_channel_by_name(interaction.client, interaction.guild.id, "mod-logs")
+
+    log_channel = get_channel(interaction.guild, Config.MOD_LOG_CHANNEL)
     embed = discord.Embed(title=None, description=content)
     embed.set_footer(text=f"Mod: {mod.display_name}")
     file: t.Optional[discord.File] = None
@@ -204,11 +153,9 @@ async def send_log_message(
         buf = io.BytesIO(bytes(archived_data, "utf-8"))
         file = discord.File(buf, filename=file_name)
 
-    if mod_logs_channel:
-        if file:
-            return await mod_logs_channel.send(embed=embed, file=file)
-        else:
-            return await mod_logs_channel.send(embed=embed)
+    if log_channel:
+        send = functools.partial(log_channel.send, embed=embed)
+        return await (send(file=file) if file else send())
 
     return None
 
@@ -234,10 +181,10 @@ async def archive_channel_messages(channel: discord.TextChannel) -> str:
         return data
 
 
-def build_support_embed(bot: commands.Bot, guild_id: int) -> discord.Embed:
+def build_support_embed(guild: discord.Guild) -> discord.Embed:
     questions_message = ""
 
-    if questions_channel := get_channel_by_name(bot, guild_id, "questions"):
+    if questions_channel := get_channel(guild, Config.QUESTIONS_CHANNEL):
         questions_message = (
             "\n\nIf you'd like to ask a quick question, you may do so in the "
             f"{questions_channel.mention} channel."
