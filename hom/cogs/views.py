@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 from hom import utils
+from hom.config import Config
 from hom.config import Constants
 
 __all__ = (
@@ -313,21 +314,25 @@ class SupportMessageCloseChannel(discord.ui.View):
         assert isinstance(interaction.channel, discord.channel.TextChannel)
         assert isinstance(interaction.user, discord.Member)
 
-        if utils.contains_roles(interaction.user.roles, "Moderator"):
-            channel_user = await utils.get_user_by_original_message(interaction.channel)
-            await utils.send_log_message(
-                interaction=interaction,
-                content=f"({interaction.channel.topic}) Ticket channel closed for user:\n{channel_user.display_name if channel_user else '?'} - {channel_user.mention if channel_user else '?'}",
-                mod=interaction.user,
-                channel=interaction.channel,
-            )
-            await interaction.channel.delete()
-
-        else:
+        if not any(r.id == Config.MOD_ROLE for r in interaction.user.roles):
             await interaction.followup.send(
                 ephemeral=True,
                 content="You do not have the required permissions to delete the channel.",
             )
+
+            return None
+
+        content = f"({interaction.channel.topic}) Ticket channel closed for user:\n"
+        if user := await utils.get_user_by_original_message(interaction.channel):
+            content += f"{user.display_name} - {user.mention}"
+
+        await utils.send_log_message(
+            interaction=interaction,
+            content=content,
+            mod=interaction.user,
+            channel=interaction.channel,
+        )
+        await interaction.channel.delete()
 
 
 async def setup(bot: commands.Bot) -> None:

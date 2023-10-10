@@ -62,7 +62,7 @@ class Support(commands.GroupCog, name="support"):
         if not await self.mod_check(interaction):
             return None
 
-        embed = utils.build_support_embed(self.bot, interaction.guild.id)
+        embed = utils.build_support_embed(interaction.guild)
         message = await channel.send(embed=embed, view=views.Support())
         await interaction.followup.send(f"Done! {message.jump_url}", ephemeral=True)
 
@@ -76,13 +76,15 @@ class Support(commands.GroupCog, name="support"):
     async def mod_check(self, interaction: discord.Interaction[commands.Bot]) -> bool:
         assert isinstance(interaction.user, discord.Member)
 
-        if not (is_mod := utils.contains_roles(interaction.user.roles, "Moderator")):
+        if not any(r.id == Config.MOD_ROLE for r in interaction.user.roles):
             await interaction.followup.send(
                 f"{Constants.DENIED} You are not allowed to do that.",
                 ephemeral=True,
             )
 
-        return is_mod
+            return False
+
+        return True
 
     async def category_check(
         self, interaction: discord.Interaction[commands.Bot], message: str, *, invert: bool = False
@@ -177,7 +179,7 @@ class Support(commands.GroupCog, name="support"):
         ):
             return None
 
-        channel = utils.get_channel_by_id(self.bot, interaction.guild.id, Config.SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if not channel:
             await interaction.followup.send("Couldn't find support channel, this is a bug.")
             return None
