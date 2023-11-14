@@ -218,8 +218,8 @@ class SupportNames(discord.ui.View):
             "Some name changes get skipped, as they can’t be auto-approved by our system and "
             "require manual approval.\n\nIf yours hasn’t been auto-approved, please tell us the "
             "name change ID and we’ll manually review it for you.\n\nNote: If you’d like to know "
-            "why your name change has been skipped you can visit our beta website (work in "
-            "progress) at https://beta.wiseoldman.net/names and hover your cursor over the your "
+            "why your name change has been skipped you can visit our website at "
+            "https://wiseoldman.net/names and hover your cursor over your "
             f"name change's ℹ️ icon.\n\n{Constants.FOOTER}"
         )
 
