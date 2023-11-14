@@ -42,7 +42,7 @@ class Support(commands.GroupCog, name="support"):
             )
         )
 
-    @commands.has_role("Moderator")
+    @commands.has_role(Config.MOD_ROLE)
     @commands.command(name="sync")
     async def sync(self, ctx: commands.Context[commands.Bot]) -> None:
         await self.bot.tree.sync()
