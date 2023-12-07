@@ -42,14 +42,14 @@ def get_channel(guild: discord.Guild, channel_id: int) -> t.Optional[discord.Tex
 
 async def get_user_by_original_message(
     channel: discord.TextChannel,
-) -> t.Optional[discord.Member | discord.User]:
+) -> t.Optional[t.Union[discord.Member, discord.User]]:
     messages = [message async for message in channel.history(limit=1, oldest_first=True)]
     mentions = messages[0].mentions if messages else None
     return mentions[0] if mentions else None
 
 
 def get_user_ticket_channel(
-    guild: discord.Guild, user: discord.User | discord.Member
+    guild: discord.Guild, user: t.Union[discord.User, discord.Member]
 ) -> t.Optional[discord.TextChannel]:
     if category := get_category(guild, Config.TICKET_CATEGORY):
         for channel in category.channels:
@@ -136,7 +136,7 @@ async def create_ticket_for_user(
 async def send_log_message(
     interaction: discord.Interaction[commands.Bot],
     content: str,
-    mod: discord.User | discord.ClientUser | discord.Member,
+    mod: t.Union[discord.User, discord.ClientUser, discord.Member],
     channel: t.Optional[discord.TextChannel] = None,
 ) -> t.Optional[discord.Message]:
     assert interaction.guild
