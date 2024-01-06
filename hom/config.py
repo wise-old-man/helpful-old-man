@@ -16,12 +16,12 @@ def _int(var: str) -> int:
 class Config:
     __slots__ = ()
 
-    DISCORD_TOKEN: t.Final[str] = environ["DISCORD_TOKEN"]
-    SUPPORT_CHANNEL: t.Final[int] = _int("SUPPORT_CHANNEL")
-    TICKET_CATEGORY: t.Final[int] = _int("TICKET_CATEGORY")
-    MOD_LOG_CHANNEL: t.Final[int] = _int("MOD_LOG_CHANNEL")
-    QUESTIONS_CHANNEL: t.Final[int] = _int("QUESTIONS_CHANNEL")
-    MOD_ROLE: t.Final[int] = _int("MOD_ROLE")
+    DISCORD_TOKEN: t.Final[str] = environ["HOM_DISCORD_TOKEN"]
+    SUPPORT_CHANNEL: t.Final[int] = _int("HOM_SUPPORT_CHANNEL")
+    TICKET_CATEGORY: t.Final[int] = _int("HOM_TICKET_CATEGORY")
+    MOD_LOG_CHANNEL: t.Final[int] = _int("HOM_MOD_LOG_CHANNEL")
+    QUESTIONS_CHANNEL: t.Final[int] = _int("HOM_QUESTIONS_CHANNEL")
+    MOD_ROLE: t.Final[int] = _int("HOM_MOD_ROLE")
 
     def __init__(self) -> None:
         raise RuntimeError("Config should not be instantiated.")
