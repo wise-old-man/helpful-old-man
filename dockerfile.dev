@@ -1,0 +1,22 @@
+FROM node:18-bullseye-slim as node
+
+# Get nodemon from a prebuilt node image
+RUN npm i -g nodemon
+
+FROM python:3.11.7-slim-bullseye
+WORKDIR /wise-old-man/hom-bot
+
+# Only install node as npm takes forever
+RUN apt-get update && apt-get install -y nodejs
+
+# Project files
+COPY hom ./hom
+COPY requirements.txt .
+
+# Grab nodemon and make it usable in this image
+COPY --from=node /usr/local/lib/node_modules/nodemon /usr/local/lib/node_modules/nodemon
+RUN ln -s /usr/local/lib/node_modules/nodemon/bin/nodemon.js /usr/local/bin/nodemon
+
+# Install dependencies
+RUN python3 -m venv .venv
+RUN .venv/bin/pip3 install -r requirements.txt

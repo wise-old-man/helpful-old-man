@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  hom-bot:
+    container_name: hom-bot
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    env_file:
+      - ./.env
+    volumes:
+      - ./hom:/wise-old-man/hom-bot/hom
+      - hom-bot-venv:/wise-old-man/hom-bot/.venv
+    command: nodemon -e py -w hom -x ".venv/bin/python3 -m hom"
+
+volumes:
+  hom-bot-venv:

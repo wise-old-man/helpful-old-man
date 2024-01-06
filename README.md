@@ -40,6 +40,21 @@ $ python -m hom
 Once the bot is running, make sure to run the `!sync` command in your dev server.
 This syncs the bots application commands with Discord.
 
+## Contributing with Docker
+
+You can also run the bot inside docker with hot reloading. It is still
+recommended to have have python and the bot's dependencies installed for
+compatibility with your linter.
+
+Still make sure to copy the `.env` file and that your discord bot application
+has proper perms in the developer dashboard.
+
+```sh
+$ docker-compose up
+```
+
+Every time you save a python file in the `hom` directory, the bot will restart.
+
 ## License
 
 Helpful Old Man is licensed under the [MIT License]
