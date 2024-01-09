@@ -2,7 +2,7 @@ FROM python:3.11.7-slim-bullseye
 WORKDIR /wise-old-man/hom-bot
 
 # Project files
-COPY hom .
+COPY hom ./hom
 COPY requirements.txt .
 
 # Install dependencies
@@ -10,4 +10,4 @@ RUN python3 -m venv .venv
 RUN .venv/bin/pip3 install -r requirements.txt
 
 # Run the bot
-RUN .venv/bin/python3 -m hom
+CMD [".venv/bin/python3", "-m", "hom"]
