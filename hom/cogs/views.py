@@ -33,7 +33,7 @@ class Support(discord.ui.View):
     ) -> None:
         await interaction.response.send_message(
             view=SupportGroup(),
-            content="What do you like assistance with?",
+            content="What do you need assistance with?",
             ephemeral=True,
         )
 
@@ -47,9 +47,27 @@ class Support(discord.ui.View):
     ) -> None:
         await interaction.response.send_message(
             view=SupportNames(),
-            content="What do you like assistance with?",
+            content="What do you need assistance with?",
             ephemeral=True,
         )
+
+    @discord.ui.button(
+        label="Patreon", style=discord.ButtonStyle.green, custom_id="persistent_view:patreon"
+    )
+    async def patreon(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button[ViewT],
+    ) -> None:
+        instructions = (
+            "If you are interested in claiming or signing up for patreon benefits check out "
+            f"<#{Config.PATREON_CHANNEL}> for more information.\n\nIf you've already signed up, "
+            "**thanks so much for your support**! It means a lot to us that you enjoy using "
+            f"Wise Old Man. Feel free to ask any questions you have here.\n\n{Constants.FOOTER}"
+        )
+
+        await interaction.response.defer()
+        await utils.create_ticket_for_user(interaction, instructions, button.label)
 
     @discord.ui.button(
         label="API Key",
