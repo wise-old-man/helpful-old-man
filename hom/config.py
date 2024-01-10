@@ -20,6 +20,7 @@ class Config:
     SUPPORT_CHANNEL: t.Final[int] = _int("HOM_SUPPORT_CHANNEL")
     TICKET_CATEGORY: t.Final[int] = _int("HOM_TICKET_CATEGORY")
     MOD_LOG_CHANNEL: t.Final[int] = _int("HOM_MOD_LOG_CHANNEL")
+    PATREON_CHANNEL: t.Final[int] = _int("HOM_PATREON_CHANNEL")
     QUESTIONS_CHANNEL: t.Final[int] = _int("HOM_QUESTIONS_CHANNEL")
     MOD_ROLE: t.Final[int] = _int("HOM_MOD_ROLE")
 
