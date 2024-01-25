@@ -193,7 +193,7 @@ def build_support_embed(guild: discord.Guild) -> discord.Embed:
     button_synopsis = (
         f"\n\n**Groups** {Constants.ARROW} Assistance on group related things\n- Verify my group "
         "(for groups with 50+ members)\n- Reset my verification code\n- Remove me from a group\n"
-        f"- Other\n\n**Name Changes** {Constants.ARROW} Help with name related things\n- Approve a"
+        f"- Other\n\n**Name Changes** {Constants.ARROW} Help with name related things\n- Approve a "
         "pending name change\n- Delete name change history\n- Other\n\n**Patreon** "
         f"{Constants.ARROW} Request help with Patreon benefits\n\n**API Key** {Constants.ARROW} "
         f"Request an API key for development\n\n**Other** {Constants.ARROW} Request assistance "
