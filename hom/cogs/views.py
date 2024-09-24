@@ -9,12 +9,12 @@ from hom.config import Constants
 
 __all__ = (
     "Support",
-    "Verify",
-    "SupportGroup",
     "SupportCompetition",
-    "SupportNames",
+    "SupportGroup",
     "SupportMessage",
     "SupportMessageCloseChannel",
+    "SupportNames",
+    "Verify",
 )
 
 ViewT = t.TypeVar("ViewT", bound=discord.ui.View)
@@ -53,7 +53,7 @@ class Support(discord.ui.View):
         )
 
     @discord.ui.button(
-        label="Names",
+        label="Name Changes",
         style=discord.ButtonStyle.green,
         custom_id="persistent_view:names_instructions",
     )
@@ -337,7 +337,7 @@ class SupportNames(discord.ui.View):
 
         await interaction.response.defer()
         await utils.create_ticket_for_user(
-            interaction, instructions, f"Names {Constants.ARROW} {button.label}"
+            interaction, instructions, f"Name Changes {Constants.ARROW} {button.label}"
         )
 
     @discord.ui.button(
@@ -359,7 +359,7 @@ class SupportNames(discord.ui.View):
         await utils.create_ticket_for_user(
             interaction,
             instructions,
-            f"Names {Constants.ARROW} {button.label}",
+            f"Name Changes {Constants.ARROW} {button.label}",
             "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
         )
 
@@ -377,7 +377,7 @@ class SupportNames(discord.ui.View):
 
         await interaction.response.defer()
         await utils.create_ticket_for_user(
-            interaction, instructions, f"Names {Constants.ARROW} {button.label}"
+            interaction, instructions, f"Name Changes {Constants.ARROW} {button.label}"
         )
 
 
@@ -445,9 +445,9 @@ class SupportMessageCloseChannel(discord.ui.View):
 
 async def setup(bot: commands.Bot) -> None:
     bot.add_view(Support())
-    bot.add_view(Verify())
-    bot.add_view(SupportGroup())
     bot.add_view(SupportCompetition())
-    bot.add_view(SupportNames())
+    bot.add_view(SupportGroup())
     bot.add_view(SupportMessage())
     bot.add_view(SupportMessageCloseChannel())
+    bot.add_view(SupportNames())
+    bot.add_view(Verify())
