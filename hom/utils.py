@@ -110,7 +110,7 @@ async def create_ticket_for_user(
     embed = discord.Embed(description=instructions, title=button_label)
     embed.set_footer(
         text=(
-            "This channel is only visible to you and our moderators. If your question has been "
+            "This channel is only visible to you and our moderators. If your questions have been "
             "answered, feel free to close the ticket."
         )
     )
@@ -191,9 +191,11 @@ def build_support_embed(guild: discord.Guild) -> discord.Embed:
         )
 
     button_synopsis = (
-        f"\n\n**Groups** {Constants.ARROW} Assistance on group related things\n- Verify my group "
+        f"\n\n**Groups** {Constants.ARROW} Help with group related things\n- Verify my group "
         "(for groups with 50+ members)\n- Reset my verification code\n- Remove me from a group\n"
-        f"- Other\n\n**Name Changes** {Constants.ARROW} Help with name related things\n- Approve a "
+        f"- Other\n\n**Competitions** {Constants.ARROW} Help with competition related things\n"
+        "- Reset my verification code\n- Remove me from a competition\n- Other\n\n"
+        f"**Name Changes** {Constants.ARROW} Help with name related things\n- Approve a "
         "pending name change\n- Delete name change history\n- Other\n\n**Patreon** "
         f"{Constants.ARROW} Request help with Patreon benefits\n\n**API Key** {Constants.ARROW} "
         f"Request an API key for development\n\n**Other** {Constants.ARROW} Request assistance "

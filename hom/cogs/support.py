@@ -162,7 +162,7 @@ class Support(commands.GroupCog, name="support"):
         await message.channel.send(
             (
                 f"Hey {og_user.mention}, just checking to see if you still need assistance.\n\n"
-                "*If you no longer need assistance or the question/concern was resolved, feel "
+                "*If you no longer need assistance or your questions/concerns were resolved, feel "
                 "free to close the ticket.*"
             ),
             view=views.SupportMessage(),

@@ -9,6 +9,7 @@ from hom.config import Constants
 
 __all__ = (
     "Support",
+    "SupportCompetition",
     "SupportGroup",
     "SupportMessage",
     "SupportMessageCloseChannel",
@@ -38,6 +39,20 @@ class Support(discord.ui.View):
         )
 
     @discord.ui.button(
+        label="Competitions",
+        style=discord.ButtonStyle.green,
+        custom_id="persistent_view:competitions_instructions",
+    )
+    async def competitions_instructions(
+        self: ViewT, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button[ViewT]
+    ) -> None:
+        await interaction.response.send_message(
+            view=SupportCompetition(),
+            content="What do you need assistance with?",
+            ephemeral=True,
+        )
+
+    @discord.ui.button(
         label="Name Changes",
         style=discord.ButtonStyle.green,
         custom_id="persistent_view:names_instructions",
@@ -60,7 +75,7 @@ class Support(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "If you are interested in claiming or signing up for patreon benefits check out "
+            "If you are interested in claiming or signing up for patreon benefits, check out "
             f"<#{Config.PATREON_CHANNEL}> for more information.\n\nIf you've already signed up, "
             "**thanks so much for your support**! It means a lot to us that you enjoy using "
             f"Wise Old Man. Feel free to ask any questions you have here.\n\n{Constants.FOOTER}"
@@ -135,7 +150,7 @@ class SupportGroup(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To verify your group please provide a screenshot to prove ownership. We have "
+            "To verify your group, please provide a screenshot to prove ownership. We have "
             "attached an example of what we need to see below. The screenshot must "
             "contain:\n\n- Your Wise Old Man group ID (found in that group's page URL), "
             "your Discord ID, and today's date typed into your in-game chatbox.\n- Your Clan "
@@ -148,7 +163,7 @@ class SupportGroup(discord.ui.View):
         await utils.create_ticket_for_user(
             interaction,
             instructions,
-            f"Group {Constants.ARROW} {button.label}",
+            f"Groups {Constants.ARROW} {button.label}",
             "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
         )
 
@@ -163,7 +178,7 @@ class SupportGroup(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To reset your verification code please provide a screenshot to prove ownership. "
+            "To reset your verification code, please provide a screenshot to prove ownership. "
             "We have attached an example of what we need to see below. The screenshot must "
             "contain:\n\n- Your Wise Old Man group ID (found in that group's page URL), your "
             "Discord ID, and today's date typed into your in-game chatbox.\n- Your Clan tab "
@@ -178,7 +193,7 @@ class SupportGroup(discord.ui.View):
         await utils.create_ticket_for_user(
             interaction,
             instructions,
-            f"Group {Constants.ARROW} {button.label}",
+            f"Groups {Constants.ARROW} {button.label}",
             "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
         )
 
@@ -202,7 +217,7 @@ class SupportGroup(discord.ui.View):
         await utils.create_ticket_for_user(
             interaction,
             instructions,
-            f"Group {Constants.ARROW} {button.label}",
+            f"Groups {Constants.ARROW} {button.label}",
             "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
         )
 
@@ -220,7 +235,80 @@ class SupportGroup(discord.ui.View):
 
         await interaction.response.defer()
         await utils.create_ticket_for_user(
-            interaction, instructions, f"Group {Constants.ARROW} {button.label}"
+            interaction, instructions, f"Groups {Constants.ARROW} {button.label}"
+        )
+
+
+class SupportCompetition(discord.ui.View):
+    def __init__(self) -> None:
+        super().__init__(timeout=None)
+
+    @discord.ui.button(
+        label="Reset my verification code",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:competition_reset_code",
+    )
+    async def competition_reset_code(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button[ViewT],
+    ) -> None:
+        instructions = (
+            "To reset your verification code, please provide us with a screenshot containing:"
+            "\n\n- Your in-game username\n- Your Discord username/ID\n- Today's date\n\n"
+            "Keep in mind that verification codes should be secret, they can be used to edit "
+            "or delete a competition, so please be mindful of who you choose to share it with.\n\n"
+            "Note: If this competition was created through a group, then the verification code is "
+            f"the same as your group's verification code.\n\n{Constants.FOOTER}"
+        )
+
+        await interaction.response.defer()
+        await utils.create_ticket_for_user(
+            interaction,
+            instructions,
+            f"Competitions {Constants.ARROW} {button.label}",
+            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+        )
+
+    @discord.ui.button(
+        label="Remove me from a competition",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:competition_remove",
+    )
+    async def competition_remove(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button[ViewT],
+    ) -> None:
+        instructions = (
+            "To remove yourself from a competition, please provide us with a screenshot containing:"
+            "\n\n- Your in-game username\n- Your Discord username/ID\n- Today's date\n\n"
+            f"{Constants.FOOTER}"
+        )
+
+        await interaction.response.defer()
+        await utils.create_ticket_for_user(
+            interaction,
+            instructions,
+            f"Competitions {Constants.ARROW} {button.label}",
+            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+        )
+
+    @discord.ui.button(
+        label="Other",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:competition_other",
+    )
+    async def competition_other(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button[ViewT],
+    ) -> None:
+        instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
+
+        await interaction.response.defer()
+        await utils.create_ticket_for_user(
+            interaction, instructions, f"Competitions {Constants.ARROW} {button.label}"
         )
 
 
@@ -249,7 +337,7 @@ class SupportNames(discord.ui.View):
 
         await interaction.response.defer()
         await utils.create_ticket_for_user(
-            interaction, instructions, f"Names {Constants.ARROW} {button.label}"
+            interaction, instructions, f"Name Changes {Constants.ARROW} {button.label}"
         )
 
     @discord.ui.button(
@@ -271,7 +359,7 @@ class SupportNames(discord.ui.View):
         await utils.create_ticket_for_user(
             interaction,
             instructions,
-            f"Names {Constants.ARROW} {button.label}",
+            f"Name Changes {Constants.ARROW} {button.label}",
             "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
         )
 
@@ -289,7 +377,7 @@ class SupportNames(discord.ui.View):
 
         await interaction.response.defer()
         await utils.create_ticket_for_user(
-            interaction, instructions, f"Names {Constants.ARROW} {button.label}"
+            interaction, instructions, f"Name Changes {Constants.ARROW} {button.label}"
         )
 
 
@@ -357,8 +445,9 @@ class SupportMessageCloseChannel(discord.ui.View):
 
 async def setup(bot: commands.Bot) -> None:
     bot.add_view(Support())
-    bot.add_view(Verify())
+    bot.add_view(SupportCompetition())
     bot.add_view(SupportGroup())
-    bot.add_view(SupportNames())
     bot.add_view(SupportMessage())
     bot.add_view(SupportMessageCloseChannel())
+    bot.add_view(SupportNames())
+    bot.add_view(Verify())
