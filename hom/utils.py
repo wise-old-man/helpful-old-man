@@ -195,11 +195,11 @@ def build_support_embed(guild: discord.Guild) -> discord.Embed:
         "(for groups with 50+ members)\n- Reset my verification code\n- Remove me from a group\n"
         f"- Other\n\n**Competitions** {Constants.ARROW} Help with competition related things\n"
         "- Reset my verification code\n- Remove me from a competition\n- Other\n\n"
-        f"**Name Changes** {Constants.ARROW} Help with name related things\n- Approve a "
-        "pending name change\n- Delete name change history\n- Other\n\n**Patreon** "
-        f"{Constants.ARROW} Request help with Patreon benefits\n\n**API Key** {Constants.ARROW} "
-        f"Request an API key for development\n\n**Other** {Constants.ARROW} Request assistance "
-        "for all other inquiries"
+        f"**Players** {Constants.ARROW} Help with player related things\n- Approve a "
+        "pending name change\n- Delete name change history\n- Opt out of tracking\n- Delete profile"
+        f"\n- Other\n\n**Patreon** {Constants.ARROW} Request help with Patreon benefits\n\n"
+        f"**API Key** {Constants.ARROW} Request an API key for development\n\n**Other** "
+        f"{Constants.ARROW} Request assistance for all other inquiries"
     )
 
     footer = (
