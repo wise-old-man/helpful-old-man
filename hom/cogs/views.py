@@ -366,16 +366,18 @@ class SupportPlayer(discord.ui.View):
     @discord.ui.button(
         label="Opt out of tracking",
         style=discord.ButtonStyle.blurple,
-        custom_id="persistent_view:player_opt_out",
+        custom_id="persistent_view:player_opt_out_tracking",
     )
-    async def player_opt_out(
+    async def player_opt_out_tracking(
         self: ViewT,
         interaction: discord.Interaction[commands.Bot],
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To opt out of tracking on Wise Old Man, please provide us with:\n\n- Your in-game "
-            f"username\n- Your Discord username/ID\n- Today's date\n\n{Constants.FOOTER}"
+            "Opting out of tracking will create a blank profile for your account that cannot "
+            "be updated, added to new groups, or added to new competitions.\n\nTo opt out of "
+            "tracking, please provide us with:\n\n- Your in-game username\n- Your Discord "
+            f"username/ID\n- Today's date\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -385,7 +387,55 @@ class SupportPlayer(discord.ui.View):
             f"Player {Constants.ARROW} {button.label}",
             "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
         )
-        
+
+    @discord.ui.button(
+        label="Opt out of new groups",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:player_opt_out_groups",
+    )
+    async def player_opt_out_groups(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button[ViewT],
+    ) -> None:
+        instructions = (
+            "Opting out of new groups will prevent your account from being added to new "
+            "groups.\n\nTo opt out of new groups, please provide us with:\n\n- Your "
+            f"in-game username\n- Your Discord username/ID\n- Today's date\n\n{Constants.FOOTER}"
+        )
+
+        await interaction.response.defer()
+        await utils.create_ticket_for_user(
+            interaction,
+            instructions,
+            f"Player {Constants.ARROW} {button.label}",
+            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+        )
+
+    @discord.ui.button(
+        label="Opt out of new competitions",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:player_opt_out_competitions",
+    )
+    async def player_opt_out_competitions(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button[ViewT],
+    ) -> None:
+        instructions = (
+            "Opting out of new competitions will prevent your account from being added to new "
+            "competitions.\n\nTo opt out of new competitions, please provide us with:\n\n- Your "
+            f"in-game username\n- Your Discord username/ID\n- Today's date\n\n{Constants.FOOTER}"
+        )
+
+        await interaction.response.defer()
+        await utils.create_ticket_for_user(
+            interaction,
+            instructions,
+            f"Player {Constants.ARROW} {button.label}",
+            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+        )
+
     @discord.ui.button(
         label="Delete profile",
         style=discord.ButtonStyle.blurple,

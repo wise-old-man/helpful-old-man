@@ -196,10 +196,11 @@ def build_support_embed(guild: discord.Guild) -> discord.Embed:
         f"- Other\n\n**Competitions** {Constants.ARROW} Help with competition related things\n"
         "- Reset my verification code\n- Remove me from a competition\n- Other\n\n"
         f"**Players** {Constants.ARROW} Help with player related things\n- Approve a "
-        "pending name change\n- Delete name change history\n- Opt out of tracking\n- Delete profile"
-        f"\n- Other\n\n**Patreon** {Constants.ARROW} Request help with Patreon benefits\n\n"
-        f"**API Key** {Constants.ARROW} Request an API key for development\n\n**Other** "
-        f"{Constants.ARROW} Request assistance for all other inquiries"
+        "pending name change\n- Delete name change history\n- Opt out of tracking, new groups, "
+        "and new competitions\n- Opt out of new groups\n- Opt out of new competitions\n- "
+        f"Delete profile\n- Other\n\n**Patreon** {Constants.ARROW} Request help with Patreon "
+        f"benefits\n\n**API Key** {Constants.ARROW} Request an API key for development\n\n"
+        f"**Other** {Constants.ARROW} Request assistance for all other inquiries"
     )
 
     footer = (
