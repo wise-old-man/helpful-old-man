@@ -50,9 +50,7 @@ class Support(commands.GroupCog, name="support"):
 
     @app_commands.guild_only()  # type: ignore
     @app_commands.describe(channel="The channel to send the embed to.")
-    @app_commands.command(
-        name="send", description="Send the support embed to a channel (Admin only)."
-    )
+    @app_commands.command(name="send", description="[Mod 🔒]: Send the support embed to a channel.")
     async def send(
         self, interaction: discord.Interaction[commands.Bot], channel: discord.TextChannel
     ) -> None:

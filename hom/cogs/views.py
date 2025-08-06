@@ -13,7 +13,7 @@ __all__ = (
     "SupportGroup",
     "SupportMessage",
     "SupportMessageCloseChannel",
-    "SupportNames",
+    "SupportPlayer",
     "Verify",
 )
 
@@ -53,15 +53,15 @@ class Support(discord.ui.View):
         )
 
     @discord.ui.button(
-        label="Name Changes",
+        label="Players",
         style=discord.ButtonStyle.green,
-        custom_id="persistent_view:names_instructions",
+        custom_id="persistent_view:players_instructions",
     )
-    async def names_instructions(
+    async def players_instructions(
         self: ViewT, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button[ViewT]
     ) -> None:
         await interaction.response.send_message(
-            view=SupportNames(),
+            view=SupportPlayer(),
             content="What do you need assistance with?",
             ephemeral=True,
         )
@@ -150,13 +150,14 @@ class SupportGroup(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To verify your group, please provide a screenshot to prove ownership. We have "
-            "attached an example of what we need to see below. The screenshot must "
-            "contain:\n\n- Your Wise Old Man group ID (found in that group's page URL), "
-            "your Discord ID, and today's date typed into your in-game chatbox.\n- Your Clan "
-            "tab open showing your username and rank. For clans, you must be Owner or Deputy "
-            "Owner to verify the group. For the old clan chat, you must be Owner or General "
-            f"(gold star).\n\n{Constants.FOOTER}"
+            "To verify your group, please provide a screenshot to prove ownership. "
+            "We have attached an example of what we need to see below. The screenshot must "
+            "contain:\n\n- Your Wise Old Man group ID (found in that group's page URL)\n- Your "
+            "Discord username/ID\n- Today's date\n- Your Clan tab open showing your username and rank. "
+            "For clans, you must be Owner or Deputy Owner to verify the group. For the old clan chat, "
+            "you must be Owner or General (gold star).\n\nKeep in mind that verification codes should "
+            "be secret, they can be used to edit or delete a group, so please be mindful of who you "
+            f"choose to share it with.\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -180,13 +181,12 @@ class SupportGroup(discord.ui.View):
         instructions = (
             "To reset your verification code, please provide a screenshot to prove ownership. "
             "We have attached an example of what we need to see below. The screenshot must "
-            "contain:\n\n- Your Wise Old Man group ID (found in that group's page URL), your "
-            "Discord ID, and today's date typed into your in-game chatbox.\n- Your Clan tab "
-            "open showing your username and rank. For clans, you must be Owner or Deputy Owner "
-            "to verify the group. For the old clan chat, you must be Owner or General (gold star)."
-            "\n\nKeep in mind that verification codes should be secret, they can be used to edit "
-            "or delete a group, so please be mindful of who you choose to share it with.\n\n"
-            f"{Constants.FOOTER}"
+            "contain:\n\n- Your Wise Old Man group ID (found in that group's page URL)\n- Your "
+            "Discord username/ID\n- Today's date\n- Your Clan tab open showing your username and rank. "
+            "For clans, you must be Owner or Deputy Owner to verify the group. For the old clan chat, "
+            "you must be Owner or General (gold star).\n\nKeep in mind that verification codes should "
+            "be secret, they can be used to edit or delete a group, so please be mindful of who you "
+            f"choose to share it with.\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -312,16 +312,16 @@ class SupportCompetition(discord.ui.View):
         )
 
 
-class SupportNames(discord.ui.View):
+class SupportPlayer(discord.ui.View):
     def __init__(self) -> None:
         super().__init__(timeout=None)
 
     @discord.ui.button(
         label="Approve a pending name change",
         style=discord.ButtonStyle.blurple,
-        custom_id="persistent_view:names_approve",
+        custom_id="persistent_view:player_names_approve",
     )
-    async def names_approve(
+    async def player_names_approve(
         self: ViewT,
         interaction: discord.Interaction[commands.Bot],
         button: discord.ui.Button[ViewT],
@@ -337,15 +337,15 @@ class SupportNames(discord.ui.View):
 
         await interaction.response.defer()
         await utils.create_ticket_for_user(
-            interaction, instructions, f"Name Changes {Constants.ARROW} {button.label}"
+            interaction, instructions, f"Player {Constants.ARROW} {button.label}"
         )
 
     @discord.ui.button(
         label="Delete name change history",
         style=discord.ButtonStyle.blurple,
-        custom_id="persistent_view:names_delete",
+        custom_id="persistent_view:player_names_delete",
     )
-    async def names_delete(
+    async def player_names_delete(
         self: ViewT,
         interaction: discord.Interaction[commands.Bot],
         button: discord.ui.Button[ViewT],
@@ -359,16 +359,112 @@ class SupportNames(discord.ui.View):
         await utils.create_ticket_for_user(
             interaction,
             instructions,
-            f"Name Changes {Constants.ARROW} {button.label}",
+            f"Player {Constants.ARROW} {button.label}",
+            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+        )
+
+    @discord.ui.button(
+        label="Opt out of tracking",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:player_opt_out_tracking",
+    )
+    async def player_opt_out_tracking(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button[ViewT],
+    ) -> None:
+        instructions = (
+            "Opting out of tracking will create a blank profile for your account that cannot "
+            "be updated, added to new groups, or added to new competitions.\n\nTo opt out of "
+            "tracking, please provide us with:\n\n- Your in-game username\n- Your Discord "
+            f"username/ID\n- Today's date\n\n{Constants.FOOTER}"
+        )
+
+        await interaction.response.defer()
+        await utils.create_ticket_for_user(
+            interaction,
+            instructions,
+            f"Player {Constants.ARROW} {button.label}",
+            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+        )
+
+    @discord.ui.button(
+        label="Opt out of new groups",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:player_opt_out_groups",
+    )
+    async def player_opt_out_groups(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button[ViewT],
+    ) -> None:
+        instructions = (
+            "Opting out of new groups will prevent your account from being added to new "
+            "groups.\n\nTo opt out of new groups, please provide us with:\n\n- Your "
+            f"in-game username\n- Your Discord username/ID\n- Today's date\n\n{Constants.FOOTER}"
+        )
+
+        await interaction.response.defer()
+        await utils.create_ticket_for_user(
+            interaction,
+            instructions,
+            f"Player {Constants.ARROW} {button.label}",
+            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+        )
+
+    @discord.ui.button(
+        label="Opt out of new competitions",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:player_opt_out_competitions",
+    )
+    async def player_opt_out_competitions(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button[ViewT],
+    ) -> None:
+        instructions = (
+            "Opting out of new competitions will prevent your account from being added to new "
+            "competitions.\n\nTo opt out of new competitions, please provide us with:\n\n- Your "
+            f"in-game username\n- Your Discord username/ID\n- Today's date\n\n{Constants.FOOTER}"
+        )
+
+        await interaction.response.defer()
+        await utils.create_ticket_for_user(
+            interaction,
+            instructions,
+            f"Player {Constants.ARROW} {button.label}",
+            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+        )
+
+    @discord.ui.button(
+        label="Delete profile",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:player_delete",
+    )
+    async def player_delete(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        button: discord.ui.Button[ViewT],
+    ) -> None:
+        instructions = (
+            "To delete your Wise Old Man profile, please provide us with:\n\n- Your in-game "
+            f"username\n- Your Discord username/ID\n- Today's date\n\n{Constants.FOOTER}"
+        )
+
+        await interaction.response.defer()
+        await utils.create_ticket_for_user(
+            interaction,
+            instructions,
+            f"Player {Constants.ARROW} {button.label}",
             "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
         )
 
     @discord.ui.button(
         label="Other",
         style=discord.ButtonStyle.blurple,
-        custom_id="persistent_view:names_other",
+        custom_id="persistent_view:player_other",
     )
-    async def names_other(
+    async def player_other(
         self: ViewT,
         interaction: discord.Interaction[commands.Bot],
         button: discord.ui.Button[ViewT],
@@ -377,7 +473,7 @@ class SupportNames(discord.ui.View):
 
         await interaction.response.defer()
         await utils.create_ticket_for_user(
-            interaction, instructions, f"Name Changes {Constants.ARROW} {button.label}"
+            interaction, instructions, f"Player {Constants.ARROW} {button.label}"
         )
 
 
@@ -449,5 +545,5 @@ async def setup(bot: commands.Bot) -> None:
     bot.add_view(SupportGroup())
     bot.add_view(SupportMessage())
     bot.add_view(SupportMessageCloseChannel())
-    bot.add_view(SupportNames())
+    bot.add_view(SupportPlayer())
     bot.add_view(Verify())
