@@ -150,14 +150,16 @@ class SupportGroup(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To verify your group, please provide a screenshot to prove ownership. "
-            "We have attached an example of what we need to see below. The screenshot must "
-            "contain:\n\n- Your Wise Old Man group ID (found in that group's page URL)\n- Your "
-            "Discord username/ID\n- Today's date\n- Your Clan tab open showing your username and rank. "
-            "For clans, you must be Owner or Deputy Owner to verify the group. For the old clan chat, "
-            "you must be Owner or General (gold star).\n\nKeep in mind that verification codes should "
-            "be secret, they can be used to edit or delete a group, so please be mindful of who you "
-            f"choose to share it with.\n\n{Constants.FOOTER}"
+            "Type the following in your ``in-game chat box`` to show ownership (example below):"
+            "\n\n- Your Wise Old Man group ``ID`` or ``Name``"
+            "\n- Your Discord username (not display name)"
+            "\n- Today's date"
+            "\n- Your Clan tab open showing your username and rank "
+            f"\n  - Clans {Constants.ARROW} You must be ``Owner`` or ``Deputy Owner``"
+            f"\n  - Friends Chat {Constants.ARROW} You must be ``Owner`` or ``General`` (gold star)"
+            "\n\nKeep in mind that verification codes should be secret, they can be used to edit or "
+            f"delete a group, so please be mindful of who you choose to share it with."
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -179,14 +181,16 @@ class SupportGroup(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To reset your verification code, please provide a screenshot to prove ownership. "
-            "We have attached an example of what we need to see below. The screenshot must "
-            "contain:\n\n- Your Wise Old Man group ID (found in that group's page URL)\n- Your "
-            "Discord username/ID\n- Today's date\n- Your Clan tab open showing your username and rank. "
-            "For clans, you must be Owner or Deputy Owner to verify the group. For the old clan chat, "
-            "you must be Owner or General (gold star).\n\nKeep in mind that verification codes should "
-            "be secret, they can be used to edit or delete a group, so please be mindful of who you "
-            f"choose to share it with.\n\n{Constants.FOOTER}"
+            "Type the following in your ``in-game chat box`` to show ownership (example below):"
+            "\n\n- Your Wise Old Man group ``ID`` or ``Name``"
+            "\n- Your Discord username (not display name)"
+            "\n- Today's date"
+            "\n- Your Clan tab open showing your username and rank "
+            f"\n  - Clans {Constants.ARROW} You must be ``Owner`` or ``Deputy Owner``"
+            f"\n  - Friends Chat {Constants.ARROW} You must be ``Owner`` or ``General`` (gold star)"
+            "\n\nKeep in mind that verification codes should be secret, they can be used to edit or "
+            f"delete a group, so please be mindful of who you choose to share it with."
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -208,9 +212,12 @@ class SupportGroup(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To remove yourself from a group, please provide us with a screenshot containing:"
-            "\n\n- Your in-game username\n- Your Discord username/ID\n- Today's date\n\n"
-            f"{Constants.FOOTER}"
+            "Type the following in your ``in-game chat box`` to show ownership (example below):"
+            "\n\n- Your in-game username"
+            "\n- Your Discord username (not display name)"
+            "\n- Today's date"
+            "\n\nTell us in this chat what group(s) you want to be removed from."
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -254,12 +261,13 @@ class SupportCompetition(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To reset your verification code, please provide us with a screenshot containing:"
+            "Type the following in your ``in-game chat box`` to show ownership (example below):"
             "\n\n- Your in-game username\n- Your Discord username/ID\n- Today's date\n\n"
             "Keep in mind that verification codes should be secret, they can be used to edit "
             "or delete a competition, so please be mindful of who you choose to share it with.\n\n"
-            "Note: If this competition was created through a group, then the verification code is "
-            f"the same as your group's verification code.\n\n{Constants.FOOTER}"
+            "-# Note: If this competition was created through a group, then the verification code is "
+            "the same as your group's verification code."
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -281,9 +289,12 @@ class SupportCompetition(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To remove yourself from a competition, please provide us with a screenshot containing:"
-            "\n\n- Your in-game username\n- Your Discord username/ID\n- Today's date\n\n"
-            f"{Constants.FOOTER}"
+            "Type the following in your ``in-game chat box`` to show ownership (example below):"
+            "\n\n- Your in-game username"
+            "\n- Your Discord username (not display name)"
+            "\n- Today's date"
+            "\n\nTell us in this chat what competition(s) you want to be removed from."
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -328,11 +339,15 @@ class SupportPlayer(discord.ui.View):
     ) -> None:
         instructions = (
             "Some name changes get skipped, as they can't be auto-approved by our system and "
-            "require manual approval.\n\nIf yours hasn't been auto-approved, please tell us the "
-            "name change ID and we'll manually review it for you.\n\nNote: If you'd like to know "
-            "why your name change has been skipped you can visit our website at "
+            "require manual approval."
+            "\n\nIf yours hasn't been auto-approved, please provide us with the following so we can review it:"
+            "\n- The ``current`` username of the account in question"
+            "\n- The ``previous`` username of the account in question"
+            "\n- The ``name change ID`` found on the website"
+            "\n\n-# Note: If you'd like to know why your name change has been skipped you can visit our website at "
             "https://wiseoldman.net/names and hover your cursor over your "
-            f"name change's ℹ️ icon.\n\n{Constants.FOOTER}"
+            "name change's ℹ️ icon."
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -351,8 +366,11 @@ class SupportPlayer(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To request a name change history deletion, please provide us with:\n\n- Your in-game "
-            f"username\n- Your Discord username/ID\n- Today's date\n\n{Constants.FOOTER}"
+            "Type the following in your ``in-game chat box`` to show ownership (example below):"
+            "\n\n- Your in-game username"
+            "\n- Your Discord username (not display name)"
+            "\n- Today's date"
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -375,9 +393,12 @@ class SupportPlayer(discord.ui.View):
     ) -> None:
         instructions = (
             "Opting out of tracking will create a blank profile for your account that cannot "
-            "be updated, added to new groups, or added to new competitions.\n\nTo opt out of "
-            "tracking, please provide us with:\n\n- Your in-game username\n- Your Discord "
-            f"username/ID\n- Today's date\n\n{Constants.FOOTER}"
+            "be updated, added to new groups, or added to new competitions."
+            "\n\nType the following in your ``in-game chat box`` to show ownership (example below):"
+            "\n\n- Your in-game username"
+            "\n- Your Discord username (not display name)"
+            "\n- Today's date"
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -399,9 +420,12 @@ class SupportPlayer(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "Opting out of new groups will prevent your account from being added to new "
-            "groups.\n\nTo opt out of new groups, please provide us with:\n\n- Your "
-            f"in-game username\n- Your Discord username/ID\n- Today's date\n\n{Constants.FOOTER}"
+            "Opting out of new groups will prevent your account from being added to new groups."
+            "\n\nType the following in your ``in-game chat box`` to show ownership (example below):"
+            "\n\n- Your in-game username"
+            "\n- Your Discord username (not display name)"
+            "\n- Today's date"
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -423,9 +447,12 @@ class SupportPlayer(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "Opting out of new competitions will prevent your account from being added to new "
-            "competitions.\n\nTo opt out of new competitions, please provide us with:\n\n- Your "
-            f"in-game username\n- Your Discord username/ID\n- Today's date\n\n{Constants.FOOTER}"
+            "Opting out of new competitions will prevent your account from being added to new competitions."
+            "\n\nType the following in your ``in-game chat box`` to show ownership (example below):"
+            "\n\n- Your in-game username"
+            "\n- Your Discord username (not display name)"
+            "\n- Today's date"
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
@@ -447,8 +474,11 @@ class SupportPlayer(discord.ui.View):
         button: discord.ui.Button[ViewT],
     ) -> None:
         instructions = (
-            "To delete your Wise Old Man profile, please provide us with:\n\n- Your in-game "
-            f"username\n- Your Discord username/ID\n- Today's date\n\n{Constants.FOOTER}"
+            "Type the following in your ``in-game chat box`` to show ownership (example below):"
+            "\n\n- Your in-game username"
+            "\n- Your Discord username (not display name)"
+            "\n- Today's date"
+            f"\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
