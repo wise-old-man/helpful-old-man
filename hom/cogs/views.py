@@ -151,7 +151,7 @@ class SupportGroup(discord.ui.View):
     ) -> None:
         instructions = (
             "Type the following in your ``in-game chat box`` to show ownership (example below):"
-            "\n\n- Your Wise Old Man group ``ID`` or ``Name``"
+            "\n\n- Your Wise Old Man group ``ID`` found in the URL of your browser when viewing your clan page"
             "\n- Your Discord username (not display name)"
             "\n- Today's date"
             "\n- Your Clan tab open showing your username and rank "
@@ -182,7 +182,7 @@ class SupportGroup(discord.ui.View):
     ) -> None:
         instructions = (
             "Type the following in your ``in-game chat box`` to show ownership (example below):"
-            "\n\n- Your Wise Old Man group ``ID`` or ``Name``"
+            "\n\n- Your Wise Old Man group ``ID`` found in the URL of your browser when viewing your clan page"
             "\n- Your Discord username (not display name)"
             "\n- Today's date"
             "\n- Your Clan tab open showing your username and rank "
