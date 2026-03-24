@@ -34,11 +34,17 @@ def get_role(guild: discord.Guild, role_id: int) -> t.Optional[discord.Role]:
     return next((r for r in guild.roles if r.id == role_id), None)
 
 
-def get_channel(guild: t.Optional[discord.Guild], channel_id: int) -> t.Optional[discord.TextChannel]:
-    return t.cast(
-        discord.TextChannel,
-        next((c for c in guild.channels if c.id == channel_id), None),
-    ) if guild else None
+def get_channel(
+    guild: t.Optional[discord.Guild], channel_id: int
+) -> t.Optional[discord.TextChannel]:
+    return (
+        t.cast(
+            discord.TextChannel,
+            next((c for c in guild.channels if c.id == channel_id), None),
+        )
+        if guild
+        else None
+    )
 
 
 async def get_original_message(
@@ -152,8 +158,8 @@ async def update_ticket_for_user(
 
     if not (message := await get_original_message(interaction.channel)):
         await interaction.followup.send(
-                f"{Constants.DENIED} Could not get original message.", ephemeral=True
-            )
+            f"{Constants.DENIED} Could not get original message.", ephemeral=True
+        )
         return None
 
     og_user = message.mentions[0]
@@ -169,15 +175,10 @@ async def update_ticket_for_user(
     if example_url:
         embed.set_image(url=example_url)
 
-    await message.edit(
-        embed=embed
-    )
+    await message.edit(embed=embed)
     await interaction.edit_original_response(content="Updated ticket for user.", view=None)
     await interaction.channel.send(
-            (
-                f"Hey {og_user.mention}, please check the updated instructions."
-            ),
-            embed=embed
+        (f"Hey {og_user.mention}, please check the updated instructions."), embed=embed
     )
 
     log_content = (

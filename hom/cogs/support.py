@@ -67,12 +67,8 @@ class Support(commands.GroupCog, name="support"):
         await interaction.followup.send(f"Done! {message.jump_url}", ephemeral=True)
 
     @app_commands.guild_only()  # type: ignore
-    @app_commands.command(
-        name="reassign", description="[Mod 🔒]: Reassign a help channel."
-    )
-    async def reassign(
-        self, interaction: discord.Interaction[commands.Bot]
-    ) -> None:
+    @app_commands.command(name="reassign", description="[Mod 🔒]: Reassign a help channel.")
+    async def reassign(self, interaction: discord.Interaction[commands.Bot]) -> None:
         await interaction.response.defer(ephemeral=True)
         assert interaction.guild
 

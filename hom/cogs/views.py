@@ -371,7 +371,6 @@ class SupportCompetition(discord.ui.View):
                 "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
             )
 
-
     @discord.ui.button(
         label="Other",
         style=discord.ButtonStyle.blurple,
