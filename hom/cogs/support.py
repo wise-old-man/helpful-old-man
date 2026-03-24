@@ -50,7 +50,9 @@ class Support(commands.GroupCog, name="support"):
 
     @app_commands.guild_only()  # type: ignore
     @app_commands.describe(channel="The channel to send the embed to.")
-    @app_commands.command(name="send", description="[Mod 🔒]: Send the support embed to a channel.")
+    @app_commands.command(
+        name="send", description="[Mod 🔒]: Send the support embed to a specified channel."
+    )
     async def send(
         self, interaction: discord.Interaction[commands.Bot], channel: discord.TextChannel
     ) -> None:
@@ -63,6 +65,23 @@ class Support(commands.GroupCog, name="support"):
         embed = utils.build_support_embed(interaction.guild)
         message = await channel.send(embed=embed, view=views.Support())
         await interaction.followup.send(f"Done! {message.jump_url}", ephemeral=True)
+
+    @app_commands.guild_only()  # type: ignore
+    @app_commands.command(
+        name="reassign", description="[Mod 🔒]: Reassign a help channel."
+    )
+    async def reassign(
+        self, interaction: discord.Interaction[commands.Bot]
+    ) -> None:
+        await interaction.response.defer(ephemeral=True)
+        assert interaction.guild
+
+        if not await self.guard_mods_channels_and_concurrency(
+            interaction, "This command can only be used within a help channel."
+        ):
+            return None
+
+        await interaction.followup.send(view=views.Support())
 
     async def clear_ratelimit(self, user_id: int) -> None:
         await asyncio.sleep(self.ratelimit)

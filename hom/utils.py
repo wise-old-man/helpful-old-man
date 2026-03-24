@@ -17,6 +17,7 @@ __all__ = (
     "create_ticket_for_user",
     "get_category",
     "get_channel",
+    "get_original_message",
     "get_role",
     "get_user_by_original_message",
     "get_user_ticket_channel",
@@ -33,11 +34,18 @@ def get_role(guild: discord.Guild, role_id: int) -> t.Optional[discord.Role]:
     return next((r for r in guild.roles if r.id == role_id), None)
 
 
-def get_channel(guild: discord.Guild, channel_id: int) -> t.Optional[discord.TextChannel]:
+def get_channel(guild: t.Optional[discord.Guild], channel_id: int) -> t.Optional[discord.TextChannel]:
     return t.cast(
         discord.TextChannel,
         next((c for c in guild.channels if c.id == channel_id), None),
-    )
+    ) if guild else None
+
+
+async def get_original_message(
+    channel: discord.TextChannel,
+) -> t.Optional[discord.Message]:
+    messages = [message async for message in channel.history(limit=1, oldest_first=True)]
+    return messages[0] if messages else None
 
 
 async def get_user_by_original_message(
@@ -131,6 +139,55 @@ async def create_ticket_for_user(
     assert interaction.client.user
     await send_log_message(interaction, log_content, interaction.client.user)
     return new_text_channel
+
+
+async def update_ticket_for_user(
+    interaction: discord.Interaction[commands.Bot],
+    instructions: str,
+    button_label: t.Optional[str],
+    example_url: t.Optional[str] = None,
+) -> t.Optional[discord.Message]:
+    assert interaction.guild
+    assert isinstance(interaction.channel, discord.TextChannel)
+
+    if not (message := await get_original_message(interaction.channel)):
+        await interaction.followup.send(
+                f"{Constants.DENIED} Could not get original message.", ephemeral=True
+            )
+        return None
+
+    og_user = message.mentions[0]
+    await interaction.channel.edit(topic=button_label or "Unknown (This is a bug)")
+    embed = discord.Embed(description=instructions, title=button_label)
+    embed.set_footer(
+        text=(
+            "This channel is only visible to you and our moderators. If your questions have been "
+            "answered, feel free to close the ticket."
+        )
+    )
+
+    if example_url:
+        embed.set_image(url=example_url)
+
+    await message.edit(
+        embed=embed
+    )
+    await interaction.edit_original_response(content="Updated ticket for user.", view=None)
+    await interaction.channel.send(
+            (
+                f"Hey {og_user.mention}, please check the updated instructions."
+            ),
+            embed=embed
+    )
+
+    log_content = (
+        f"({interaction.channel.topic}) Ticket updated for user:\n``{interaction.user.display_name}`` "
+        f"- {interaction.user.mention}"
+    )
+
+    assert interaction.client.user
+    await send_log_message(interaction, log_content, interaction.client.user)
+    return message
 
 
 async def send_log_message(
