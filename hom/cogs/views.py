@@ -74,6 +74,7 @@ class Support(discord.ui.View):
         interaction: discord.Interaction[commands.Bot],
         button: discord.ui.Button[ViewT],
     ) -> None:
+        assert isinstance(self, Support)
         instructions = (
             "If you are interested in claiming or signing up for patreon benefits, check out "
             f"<#{Config.PATREON_CHANNEL}> for more information.\n\nIf you've already signed up, "
@@ -82,7 +83,11 @@ class Support(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(interaction, instructions, button.label)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(interaction, instructions, button.label)
+        else:
+            await utils.update_ticket_for_user(interaction, instructions, button.label)
 
     @discord.ui.button(
         label="API Key",
@@ -94,13 +99,18 @@ class Support(discord.ui.View):
         interaction: discord.Interaction[commands.Bot],
         button: discord.ui.Button[ViewT],
     ) -> None:
+        assert isinstance(self, Support)
         instructions = (
             "If you'd like to get an API Key, please tell us your project's name and we'll create "
             f"you a new API key.\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(interaction, instructions, button.label)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(interaction, instructions, button.label)
+        else:
+            await utils.update_ticket_for_user(interaction, instructions, button.label)
 
     @discord.ui.button(
         label="Other",
@@ -110,9 +120,14 @@ class Support(discord.ui.View):
     async def other_instructions(
         self: ViewT, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button[ViewT]
     ) -> None:
+        assert isinstance(self, Support)
         await interaction.response.defer()
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
-        await utils.create_ticket_for_user(interaction, instructions, f"Other")
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(interaction, instructions, f"Other")
+        else:
+            await utils.update_ticket_for_user(interaction, instructions, f"Other")
 
 
 class Verify(discord.ui.View):
@@ -163,12 +178,21 @@ class SupportGroup(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction,
-            instructions,
-            f"Groups {Constants.ARROW} {button.label}",
-            "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction,
+                instructions,
+                f"Groups {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction,
+                instructions,
+                f"Groups {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+            )
 
     @discord.ui.button(
         label="Reset my verification code",
@@ -194,12 +218,21 @@ class SupportGroup(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction,
-            instructions,
-            f"Groups {Constants.ARROW} {button.label}",
-            "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction,
+                instructions,
+                f"Groups {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction,
+                instructions,
+                f"Groups {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+            )
 
     @discord.ui.button(
         label="Remove me from a group",
@@ -221,12 +254,21 @@ class SupportGroup(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction,
-            instructions,
-            f"Groups {Constants.ARROW} {button.label}",
-            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction,
+                instructions,
+                f"Groups {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction,
+                instructions,
+                f"Groups {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+            )
 
     @discord.ui.button(
         label="Other",
@@ -241,9 +283,15 @@ class SupportGroup(discord.ui.View):
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction, instructions, f"Groups {Constants.ARROW} {button.label}"
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction, instructions, f"Groups {Constants.ARROW} {button.label}"
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction, instructions, f"Groups {Constants.ARROW} {button.label}"
+            )
 
 
 class SupportCompetition(discord.ui.View):
@@ -271,12 +319,21 @@ class SupportCompetition(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction,
-            instructions,
-            f"Competitions {Constants.ARROW} {button.label}",
-            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction,
+                instructions,
+                f"Competitions {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction,
+                instructions,
+                f"Competitions {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
 
     @discord.ui.button(
         label="Remove me from a competition",
@@ -298,12 +355,21 @@ class SupportCompetition(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction,
-            instructions,
-            f"Competitions {Constants.ARROW} {button.label}",
-            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction,
+                instructions,
+                f"Competitions {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction,
+                instructions,
+                f"Competitions {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
 
     @discord.ui.button(
         label="Other",
@@ -318,9 +384,15 @@ class SupportCompetition(discord.ui.View):
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction, instructions, f"Competitions {Constants.ARROW} {button.label}"
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction, instructions, f"Competitions {Constants.ARROW} {button.label}"
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction, instructions, f"Competitions {Constants.ARROW} {button.label}"
+            )
 
 
 class SupportPlayer(discord.ui.View):
@@ -341,8 +413,8 @@ class SupportPlayer(discord.ui.View):
             "Some name changes get skipped, as they can't be auto-approved by our system and "
             "require manual approval."
             "\n\nIf yours hasn't been auto-approved, please provide us with the following so we can review it:"
-            "\n- The ``current`` username of the account in question"
             "\n- The ``previous`` username of the account in question"
+            "\n- The ``current`` username of the account in question"
             "\n- The ``name change ID`` found on the website"
             "\n\n-# Note: If you'd like to know why your name change has been skipped you can visit our website at "
             "https://wiseoldman.net/names and hover your cursor over your "
@@ -351,9 +423,15 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction, instructions, f"Player {Constants.ARROW} {button.label}"
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction, instructions, f"Players {Constants.ARROW} {button.label}"
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction, instructions, f"Players {Constants.ARROW} {button.label}"
+            )
 
     @discord.ui.button(
         label="Delete name change history",
@@ -374,12 +452,21 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction,
-            instructions,
-            f"Player {Constants.ARROW} {button.label}",
-            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction,
+                instructions,
+                f"Players {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction,
+                instructions,
+                f"Players {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
 
     @discord.ui.button(
         label="Opt out of tracking",
@@ -402,12 +489,21 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction,
-            instructions,
-            f"Player {Constants.ARROW} {button.label}",
-            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction,
+                instructions,
+                f"Players {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction,
+                instructions,
+                f"Players {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
 
     @discord.ui.button(
         label="Opt out of new groups",
@@ -429,12 +525,21 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction,
-            instructions,
-            f"Player {Constants.ARROW} {button.label}",
-            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction,
+                instructions,
+                f"Players {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction,
+                instructions,
+                f"Players {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
 
     @discord.ui.button(
         label="Opt out of new competitions",
@@ -456,12 +561,21 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction,
-            instructions,
-            f"Player {Constants.ARROW} {button.label}",
-            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction,
+                instructions,
+                f"Players {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction,
+                instructions,
+                f"Players {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
 
     @discord.ui.button(
         label="Delete profile",
@@ -482,12 +596,21 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction,
-            instructions,
-            f"Player {Constants.ARROW} {button.label}",
-            "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction,
+                instructions,
+                f"Players {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction,
+                instructions,
+                f"Players {Constants.ARROW} {button.label}",
+                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+            )
 
     @discord.ui.button(
         label="Other",
@@ -502,9 +625,15 @@ class SupportPlayer(discord.ui.View):
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
 
         await interaction.response.defer()
-        await utils.create_ticket_for_user(
-            interaction, instructions, f"Player {Constants.ARROW} {button.label}"
-        )
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        if interaction.channel == channel:
+            await utils.create_ticket_for_user(
+                interaction, instructions, f"Player {Constants.ARROW} {button.label}"
+            )
+        else:
+            await utils.update_ticket_for_user(
+                interaction, instructions, f"Player {Constants.ARROW} {button.label}"
+            )
 
 
 class SupportMessage(discord.ui.View):
