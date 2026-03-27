@@ -1,4 +1,3 @@
-import asyncio
 import typing as t
 
 import discord
@@ -19,8 +18,6 @@ class Support(commands.GroupCog, name="support"):
     def __init__(self, bot: Bot) -> None:
         super().__init__()
         self.bot = bot
-        self.ratelimit = 5
-        self.ratelimits: t.Dict[int, bool] = {}
         self.support_footer = (
             "As a reminder, all moderators and admins in this server volunteer to help in their "
             "free time.\nWe appreciate your patience."
@@ -72,19 +69,12 @@ class Support(commands.GroupCog, name="support"):
         await interaction.response.defer(ephemeral=True)
         assert interaction.guild
 
-        if not await self.guard_mods_channels_and_concurrency(
+        if not await self.guard_mods_channels(
             interaction, "This command can only be used within a help channel."
         ):
             return None
 
         await interaction.followup.send(view=views.Support())
-
-    async def clear_ratelimit(self, user_id: int) -> None:
-        await asyncio.sleep(self.ratelimit)
-        # del schedules deletion but does not guarantee the GC will remove the
-        # entry immediately so we set the value to False until then
-        self.ratelimits[user_id] = False
-        del self.ratelimits[user_id]
 
     async def mod_check(self, interaction: discord.Interaction[commands.Bot]) -> bool:
         assert isinstance(interaction.user, discord.Member)
@@ -115,19 +105,6 @@ class Support(commands.GroupCog, name="support"):
 
         return category_match
 
-    async def concurrency_check(self, interaction: discord.Interaction[commands.Bot]) -> bool:
-        if not self.ratelimits.get(interaction.user.id):
-            self.ratelimits[interaction.user.id] = True
-            await asyncio.create_task(self.clear_ratelimit(interaction.user.id))
-            return True
-
-        await interaction.followup.send(
-            f"{Constants.DENIED} The command was used for this user in the past {self.ratelimit} seconds.",
-            ephemeral=True,
-        )
-
-        return False
-
     async def get_og_user(
         self, interaction: discord.Interaction[commands.Bot]
     ) -> t.Optional[t.Union[discord.User, discord.Member]]:
@@ -140,7 +117,7 @@ class Support(commands.GroupCog, name="support"):
 
         return user
 
-    async def guard_mods_channels_and_concurrency(
+    async def guard_mods_channels(
         self,
         interaction: discord.Interaction[commands.Bot],
         category_message: str,
@@ -153,9 +130,6 @@ class Support(commands.GroupCog, name="support"):
         if not await self.category_check(interaction, category_message, invert=invert):
             return False
 
-        if not await self.concurrency_check(interaction):
-            return False
-
         return True
 
     async def awaiting_response(
@@ -163,7 +137,7 @@ class Support(commands.GroupCog, name="support"):
     ) -> None:
         await interaction.response.defer(ephemeral=True)
 
-        if not await self.guard_mods_channels_and_concurrency(
+        if not await self.guard_mods_channels(
             interaction, "This option can only be used within a help channel."
         ):
             return None
@@ -187,7 +161,7 @@ class Support(commands.GroupCog, name="support"):
         await interaction.response.defer(ephemeral=True)
         assert interaction.guild
 
-        if not await self.guard_mods_channels_and_concurrency(
+        if not await self.guard_mods_channels(
             interaction, "Please continue using this channel to assist the user.", invert=True
         ):
             return None
