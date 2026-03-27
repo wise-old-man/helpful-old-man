@@ -1,3 +1,4 @@
 discord.py==2.3.2
+audioop-lts==0.2.2
 python-dotenv==1.0.0
-uvloop==0.17.0; os_name != "nt"
+uvloop==0.22.1; os_name != "nt"
