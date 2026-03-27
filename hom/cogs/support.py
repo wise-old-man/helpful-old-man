@@ -1,4 +1,3 @@
-import asyncio
 import typing as t
 
 import discord
