@@ -1,11 +1,11 @@
 import datetime
 import functools
 import io
-import requests
 import traceback
 import typing as t
 
 import discord
+import requests
 from discord import app_commands
 from discord.ext import commands
 
