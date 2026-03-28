@@ -46,7 +46,7 @@ class Constants:
     RED: t.Final[int] = 13386306
     GREEN: t.Final[int] = 6608987
     ORANGE: t.Final[int] = 15515476
-    COUNTRIES: t.Final[dict[str, str]] = {
+    COUNTRIES: t.Final[t.Dict[str, str]] = {
         "None": "null",
         "Andorra": "AD",
         "United Arab Emirates": "AE",
