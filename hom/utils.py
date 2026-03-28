@@ -300,7 +300,7 @@ async def send_log_message(
 
 
 async def set_flag_autocomplete(
-    interaction: discord.Interaction, current: str
+    interaction: discord.Interaction[commands.Bot], current: str
 ) -> t.List[app_commands.Choice[str]]:
     countries = [
         app_commands.Choice(name=country, value=Constants.COUNTRIES[country])
