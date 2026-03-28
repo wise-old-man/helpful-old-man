@@ -54,7 +54,7 @@ def install(*packages: str) -> InjectorT:
 
 
 @nox.session(reuse_venv=True)
-@install("pyright", "mypy", "discord.py", "python-dotenv", "uvloop")
+@install("pyright", "mypy", "discord.py", "python-dotenv", "uvloop", "requests")
 def types(session: nox.Session) -> None:
     session.run("mypy")
     session.run("pyright")
