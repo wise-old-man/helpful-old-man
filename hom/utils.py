@@ -313,6 +313,6 @@ async def set_flag_autocomplete(
 def set_flag(username: str, country: str) -> requests.models.Response:
     url = f"https://api.wiseoldman.net/v2/players{username}/country"
     headers = {"userAgent": "Helpful Old Man Discord Bot"}
-    json = {"country": country, "adminPassword": env.SHARED_ADMIN_PASSWORD}
+    json = {"country": country, "adminPassword": Config.SHARED_ADMIN_PASSWORD}
     response = requests.put(url, headers=headers, json=json)
     return response
