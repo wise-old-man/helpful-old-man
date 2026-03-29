@@ -157,7 +157,7 @@ async def create_ticket_for_user(
     )
 
     assert interaction.client.user
-    await send_log_message(interaction, log_content, interaction.client.user)
+    await send_log_message(interaction, log_content, mod=interaction.client.user)
     return new_text_channel
 
 
@@ -276,7 +276,7 @@ async def update_ticket_for_user(
     )
 
     assert interaction.client.user
-    await send_log_message(interaction, log_content, interaction.client.user)
+    await send_log_message(interaction, log_content, mod=interaction.client.user)
     return message
 
 
