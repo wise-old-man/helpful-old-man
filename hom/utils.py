@@ -144,13 +144,17 @@ async def create_ticket_for_user(
     )
 
     if example_url:
-        embed.set_image(url=example_url)
+        file = discord.File(f"hom/assets/{example_url}", filename=example_url)
+        embed.set_image(url=f"attachment://{example_url}")
+        await new_text_channel.send(
+            f"{interaction.user.mention}", embed=embed, view=views.SupportMessage(), file=file
+        )
+    else:
+        await new_text_channel.send(
+            f"{interaction.user.mention}", embed=embed, view=views.SupportMessage()
+        )
 
     await interaction.followup.send(content, ephemeral=True)
-    await new_text_channel.send(
-        f"{interaction.user.mention}", embed=embed, view=views.SupportMessage()
-    )
-
     log_content = (
         f"({new_text_channel.topic}) Ticket opened for user:\n``{interaction.user.display_name}`` "
         f"- {interaction.user.mention}"
@@ -262,14 +266,24 @@ async def update_ticket_for_user(
     )
 
     if example_url:
-        embed.set_image(url=example_url)
+        file = discord.File(f"hom/assets/{example_url}", filename=example_url)
+        embed.set_image(url=f"attachment://{example_url}")
+        await message.edit(embed=embed, attachments=[file])
+        file = discord.File(f"hom/assets/{example_url}", filename=example_url)
+        await interaction.channel.send(
+            (f"Hey {og_user.mention}, please check the updated instructions."),
+            embed=embed,
+            view=views.SupportMessage(),
+            file=file,
+        )
+    else:
+        await interaction.channel.send(
+            (f"Hey {og_user.mention}, please check the updated instructions."),
+            embed=embed,
+            view=views.SupportMessage(),
+        )
 
-    await message.edit(embed=embed)
     await interaction.edit_original_response(content="Updated ticket for user.", view=None)
-    await interaction.channel.send(
-        (f"Hey {og_user.mention}, please check the updated instructions."), embed=embed
-    )
-
     log_content = (
         f"({interaction.channel.topic}) Ticket updated for user:\n``{interaction.user.display_name}`` "
         f"- {interaction.user.mention}"

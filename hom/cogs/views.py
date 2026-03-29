@@ -184,14 +184,14 @@ class SupportGroup(discord.ui.View):
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+                example_url="group.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+                example_url="group.jpg",
             )
 
     @discord.ui.button(
@@ -224,14 +224,14 @@ class SupportGroup(discord.ui.View):
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+                example_url="group.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+                example_url="group.jpg",
             )
 
     @discord.ui.button(
@@ -260,14 +260,14 @@ class SupportGroup(discord.ui.View):
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+                example_url="group.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157429283962880/group.jpg",
+                example_url="group.jpg",
             )
 
     @discord.ui.button(
@@ -325,14 +325,14 @@ class SupportCompetition(discord.ui.View):
                 interaction,
                 instructions,
                 f"Competitions {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Competitions {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
 
     @discord.ui.button(
@@ -361,14 +361,14 @@ class SupportCompetition(discord.ui.View):
                 interaction,
                 instructions,
                 f"Competitions {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Competitions {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
 
     @discord.ui.button(
@@ -458,14 +458,14 @@ class SupportPlayer(discord.ui.View):
                 interaction,
                 instructions,
                 f"Players {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Players {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
 
     @discord.ui.button(
@@ -495,14 +495,14 @@ class SupportPlayer(discord.ui.View):
                 interaction,
                 instructions,
                 f"Players {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Players {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
 
     @discord.ui.button(
@@ -531,14 +531,14 @@ class SupportPlayer(discord.ui.View):
                 interaction,
                 instructions,
                 f"Players {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Players {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
 
     @discord.ui.button(
@@ -567,14 +567,14 @@ class SupportPlayer(discord.ui.View):
                 interaction,
                 instructions,
                 f"Players {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Players {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
 
     @discord.ui.button(
@@ -602,14 +602,14 @@ class SupportPlayer(discord.ui.View):
                 interaction,
                 instructions,
                 f"Players {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Players {Constants.ARROW} {button.label}",
-                "https://cdn.discordapp.com/attachments/696219254076342312/1200157428981977229/player.jpg",
+                example_url="player.jpg",
             )
 
     @discord.ui.button(
