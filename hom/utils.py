@@ -283,14 +283,17 @@ async def update_ticket_for_user(
 async def send_log_message(
     interaction: discord.Interaction[commands.Bot],
     content: str,
-    mod: t.Union[discord.User, discord.ClientUser, discord.Member],
+    mod: t.Union[discord.User, discord.ClientUser, discord.Member, None] = None,
     channel: t.Optional[discord.TextChannel] = None,
+    title: t.Optional[str] = None,
 ) -> t.Optional[discord.Message]:
     assert interaction.guild
 
     log_channel = get_channel(interaction.guild, Config.MOD_LOG_CHANNEL)
-    embed = discord.Embed(title=None, description=content)
-    embed.set_footer(text=f"Mod: {mod.display_name}")
+    embed = discord.Embed(title=title, description=content)
+    if mod:
+        embed.set_footer(text=f"Mod: {mod.display_name}")
+
     file: t.Optional[discord.File] = None
 
     if channel:

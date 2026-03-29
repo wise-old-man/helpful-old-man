@@ -57,6 +57,12 @@ class SetFlag(commands.Cog, name="setflag"):
                     value = country
 
                 embed.add_field(name="Country Code", value=value)
+
+                await utils.send_log_message(
+                    interaction,
+                    f"Username: `{username}`\nFlag: {country}\nChanged by: {interaction.user.mention}, `{interaction.user.id}`, `{interaction.user.name}`",
+                    title="Changed User Flag",
+                )
             else:
                 title = "Failed to update flag."
                 description = "Failed to update flag"
