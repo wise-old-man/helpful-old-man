@@ -39,9 +39,7 @@ class SetFlag(commands.Cog, name="setflag"):
                 if country == "null":
                     description = f"{interaction.user.mention} unset `{username}`'s country"
                 else:
-                    description = (
-                        f"{interaction.user.mention} changed `{username}`'s country to {utils.get_country_name(country)}"
-                    )
+                    description = f"{interaction.user.mention} changed `{username}`'s country to {utils.get_country_name(country)}"
 
             else:
                 title = "Failed to update flag."
