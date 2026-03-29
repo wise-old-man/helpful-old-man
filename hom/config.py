@@ -26,6 +26,7 @@ class Config:
     MOD_ROLE: t.Final[int] = _int("HOM_MOD_ROLE")
     SHARED_ADMIN_PASSWORD: t.Final[str] = environ["SHARED_ADMIN_PASSWORD"]
     DISCORD_BOT_BASE_API_URL: t.Final[str] = environ["DISCORD_BOT_BASE_API_URL"]
+    DISCORD_BOT_BASE_WEBSITE_URL: t.Final[str] = environ["DISCORD_BOT_BASE_WEBSITE_URL"]
 
     def __init__(self) -> None:
         raise RuntimeError("Config should not be instantiated.")
@@ -35,6 +36,7 @@ class Config:
 class Constants:
     __slots__ = ()
 
+    HEADERS: t.Final[dict] = {"userAgent": "Helpful Old Man Discord Bot"}
     ARROW: t.Final[str] = "→"
     PREFIX: t.Final[str] = "!"
     DENIED: t.Final[str] = "❌"
