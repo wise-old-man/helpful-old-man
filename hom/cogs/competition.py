@@ -1,3 +1,6 @@
+from typing import Optional
+from typing import Union
+
 import discord
 import requests
 from discord import app_commands
@@ -33,7 +36,7 @@ class Competition(commands.GroupCog, name="competition"):
         interaction: discord.Interaction[commands.Bot],
         username: str,
         group_id: int,
-        requester: discord.Member = None,
+        requester: discord.Member | None = None,
     ) -> None:
         await interaction.response.defer()
         assert interaction.guild
