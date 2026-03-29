@@ -56,7 +56,7 @@ class Competition(commands.GroupCog, name="competition"):
             return
 
         successful_competitions: list[str] = []
-        error_competitions: list[str]  = []
+        error_competitions: list[str] = []
         for comp in response.json():
             comp_id = comp["competitionId"]
             competition_link = (
