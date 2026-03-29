@@ -1,3 +1,5 @@
+from pydoc import describe
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -33,31 +35,37 @@ class SetFlag(commands.Cog, name="setflag"):
         elif interaction.channel == channel:
             response = utils.set_flag(username, country)
             flag_emoji = utils.get_flag_emoji(country)
+
+            embed = discord.Embed()
+
             if response.status_code == 200:
                 title = f"{flag_emoji} Player flag updated!"
                 color = Constants.GREEN
                 if country == "null":
                     description = f"{interaction.user.mention} unset `{username}`'s country"
                 else:
-                    description = f"{interaction.user.mention} changed `{username}`'s country to {utils.get_country_name(country)}"
+                    description = f"{interaction.user.mention} changed `{username}`'s country to `{utils.get_country_name(country)}`"
 
+                embed.add_field(name="Username", value=username)
+                if country == "null":
+                    value = "None"
+                else:
+                    value = country
+
+                embed.add_field(name="Country Code", value=value)
+            elif response.status_code == 400:
+                title = None
+                color = Constants.RED
+                description = "Invalid country. You must supply a valid country name or code, according to the ISO 3166-1 standard. Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2"
             else:
                 title = "Failed to update flag."
                 color = Constants.RED
                 description = "Failed to update flag"
 
-            embed = discord.Embed(
-                title=title,
-                color=color,
-                description=description,
-            )
-            embed.add_field(name="Username", value=username)
-            if country == "null":
-                value = "None"
-            else:
-                value = country
+            embed.title = title
+            embed.colour = color
+            embed.description = description
 
-            embed.add_field(name="Country Code", value=value)
             await interaction.followup.send(embed=embed)
         else:
             await interaction.followup.send(f"This command can only be used in {channel.mention}.")
