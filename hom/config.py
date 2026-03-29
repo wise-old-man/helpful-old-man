@@ -36,7 +36,7 @@ class Config:
 class Constants:
     __slots__ = ()
 
-    HEADERS: t.Final[t.Dict] = {"userAgent": "Helpful Old Man Discord Bot"}
+    HEADERS: t.Final[dict[str, str]] = {"userAgent": "Helpful Old Man Discord Bot"}
     ARROW: t.Final[str] = "→"
     PREFIX: t.Final[str] = "!"
     DENIED: t.Final[str] = "❌"

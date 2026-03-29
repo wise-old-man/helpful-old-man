@@ -36,7 +36,7 @@ class Competition(commands.GroupCog, name="competition"):
         interaction: discord.Interaction[commands.Bot],
         username: str,
         group_id: int,
-        requester: discord.Member | None = None,
+        requester: Optional[discord.Member] = None,
     ) -> None:
         await interaction.response.defer()
         assert interaction.guild
@@ -90,10 +90,23 @@ class Competition(commands.GroupCog, name="competition"):
             + "\n, ".join(error_competitions)[:1900]
         )
 
-        await interaction.channel.send(
-            content=success_message
-        ) if successful_competitions else None
-        await interaction.channel.send(content=error_message) if error_competitions else None
+        channel_to_send = interaction.channel
+
+        if isinstance(
+            channel_to_send,
+            (
+                discord.TextChannel,
+                discord.VoiceChannel,
+                discord.StageChannel,
+                discord.Thread,
+                discord.DMChannel,
+                discord.GroupChannel,
+            ),
+        ):
+            if successful_competitions:
+                await channel_to_send.send(success_message)
+            if error_competitions:
+                await channel_to_send.send(error_message)
 
         await interaction.followup.send(
             f"{Constants.COMPLETE} Processed request.",
