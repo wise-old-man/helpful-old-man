@@ -37,6 +37,7 @@ class SetFlag(commands.Cog, name="setflag"):
                     color=Constants.RED,
                     description="Invalid country. You must supply a valid country name or code, according to the ISO 3166-1 standard. Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2",
                 )
+                await interaction.followup.send(embed=embed)
                 return None
 
             response = utils.set_flag(username, country)
