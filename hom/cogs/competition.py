@@ -1,5 +1,4 @@
 from typing import Optional
-from typing import Union
 
 import discord
 import requests
