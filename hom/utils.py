@@ -19,6 +19,7 @@ __all__ = (
     "create_ticket_for_user",
     "get_category",
     "get_channel",
+    "get_country_name",
     "get_flag_emoji",
     "get_original_message",
     "get_role",
@@ -176,6 +177,14 @@ def get_channel(
         if guild
         else None
     )
+
+
+def get_country_name(country: str) -> str:
+    for key, val in Constants.COUNTRIES:
+        if val == country:
+            return key
+
+    return country
 
 
 def get_flag_emoji(country: str) -> str:

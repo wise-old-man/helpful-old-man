@@ -40,7 +40,7 @@ class SetFlag(commands.Cog, name="setflag"):
                     description = f"{interaction.user.mention} unset `{username}`'s country"
                 else:
                     description = (
-                        f"{interaction.user.mention} changed `{username}`'s country to {country}"
+                        f"{interaction.user.mention} changed `{username}`'s country to {utils.get_country_name(country)}"
                     )
 
             else:
@@ -54,7 +54,12 @@ class SetFlag(commands.Cog, name="setflag"):
                 description=description,
             )
             embed.add_field(name="Username", value=username)
-            embed.add_field(name="Country Code", value=country)
+            if country == "null":
+                value = "None"
+            else:
+                value = country
+
+            embed.add_field(name="Country Code", value=value)
             await interaction.followup.send(embed=embed)
         else:
             await interaction.followup.send(f"This command can only be used in {channel.mention}.")
