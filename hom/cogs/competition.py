@@ -23,15 +23,17 @@ class Competition(commands.GroupCog, name="competition"):
     @app_commands.describe(
         group_id="The group id being used for removal of all group competitions."
     )
-    @app_commands.describe(
-        requester="Requester's Discord user tag."
-    )
+    @app_commands.describe(requester="Requester's Discord user tag.")
     @app_commands.command(
         name="remove_from_group_competitions",
         description="[Mod :lock:]: Remove a player from group competitions.",
     )
     async def remove_from_group_competitions(
-        self, interaction: discord.Interaction[commands.Bot], username: str, group_id: int, requester: discord.Member = None
+        self,
+        interaction: discord.Interaction[commands.Bot],
+        username: str,
+        group_id: int,
+        requester: discord.Member = None,
     ) -> None:
         await interaction.response.defer()
         assert interaction.guild
@@ -46,42 +48,64 @@ class Competition(commands.GroupCog, name="competition"):
         )
 
         if response.status_code != 200:
-            await interaction.followup.send(f"Could not find any competitions related to the username: `{username}`.")
+            await interaction.followup.send(
+                f"Could not find any competitions related to the username: `{username}`."
+            )
             return
 
         successful_competitions = []
         error_competitions = []
         for comp in response.json():
-            competition_link = f"[{comp["competitionId"]}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/competitions/{comp["competitionId"]})"
+            comp_id = comp["competitionId"]
+            competition_link = (
+                f"[{comp_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/competitions/{comp_id})"
+            )
 
             if group_id == comp["competition"]["groupId"]:
                 response = requests.delete(
-                    url=f"{Config.DISCORD_BOT_BASE_API_URL}/competitions/{comp['competitionId']}/participants",
-                    json={"participants": [username], "adminPassword": Config.SHARED_ADMIN_PASSWORD},
+                    url=f"{Config.DISCORD_BOT_BASE_API_URL}/competitions/{comp_id}/participants",
+                    json={
+                        "participants": [username],
+                        "adminPassword": Config.SHARED_ADMIN_PASSWORD,
+                    },
                 )
 
                 if response.status_code != 200:
-                    error_competitions.append(competition_link + f" {Constants.ARROW} ```{response.text}```")
+                    error_competitions.append(
+                        competition_link + f" {Constants.ARROW} ```{response.text}```"
+                    )
                     continue
 
                 successful_competitions.append(competition_link)
 
-        success_message = f"Successfully removed `{username}` from the following competitions: " + ", ".join(successful_competitions)[:1900]
-        error_message = f"Could not remove `{username}` from the following competitions: " + "\n, ".join(error_competitions)[:1900]
+        success_message = (
+            f"Successfully removed `{username}` from the following competitions: "
+            + ", ".join(successful_competitions)[:1900]
+        )
+        error_message = (
+            f"Could not remove `{username}` from the following competitions: "
+            + "\n, ".join(error_competitions)[:1900]
+        )
 
-        await interaction.channel.send(content=success_message) if successful_competitions else None
+        await interaction.channel.send(
+            content=success_message
+        ) if successful_competitions else None
         await interaction.channel.send(content=error_message) if error_competitions else None
 
         await interaction.followup.send(
             f"{Constants.COMPLETE} Processed request.",
         )
 
-        requested_by = f"\nRequested by: {requester.mention}, `{requester.id}`, `{requester.name}`" if requester else ""
+        requested_by = (
+            f"\nRequested by: {requester.mention}, `{requester.id}`, `{requester.name}`"
+            if requester
+            else ""
+        )
         await utils.send_log_message(
             interaction,
             f"Username: `{username}`\nSuccess Count: `{len(successful_competitions)}`\nError Count: `{len(error_competitions)}`{requested_by}",
             title="Removed User From Group Competitions",
-            mod=interaction.user
+            mod=interaction.user,
         )
 
 
