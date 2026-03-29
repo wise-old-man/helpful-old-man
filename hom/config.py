@@ -25,6 +25,7 @@ class Config:
     FLAG_CHANNEL: t.Final[int] = _int("HOM_FLAG_CHANNEL")
     MOD_ROLE: t.Final[int] = _int("HOM_MOD_ROLE")
     SHARED_ADMIN_PASSWORD: t.Final[str] = environ["SHARED_ADMIN_PASSWORD"]
+    DISCORD_BOT_BASE_API_URL: t.Final[str] = environ["DISCORD_BOT_BASE_API_URL"]
 
     def __init__(self) -> None:
         raise RuntimeError("Config should not be instantiated.")

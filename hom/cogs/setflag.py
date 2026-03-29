@@ -31,13 +31,14 @@ class SetFlag(commands.Cog, name="setflag"):
         if not channel:
             await interaction.followup.send("Couldn't find change-flag channel, this is a bug.")
         elif interaction.channel == channel:
+            country = country if country != "null" else None
             response = utils.set_flag(username, country)
             flag_emoji = utils.get_flag_emoji(country)
             if response.status_code == 200:
                 title = f"{flag_emoji} Player flag updated!"
                 color = Constants.GREEN
-                if country == "null":
-                    description = f"`${interaction.user} unset `${username}`'s country`"
+                if country == "null" or country is None:
+                    description = f"{interaction.user.mention} unset `{username}`'s country"
                 else:
                     description = (
                         f"{interaction.user.mention} changed `{username}`'s country to {country}"

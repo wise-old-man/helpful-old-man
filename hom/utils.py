@@ -47,8 +47,7 @@ async def archive_channel_messages(channel: discord.TextChannel) -> str:
         traceback.print_exc()
         pass
 
-    finally:
-        return data
+    return data
 
 
 def build_support_embed(guild: discord.Guild) -> discord.Embed:
@@ -180,9 +179,9 @@ def get_channel(
 
 
 def get_flag_emoji(country: str) -> str:
-    if country == "null":
+    if country == "null" or country is None:
         flag_emoji = ":flag_white:"
-    if country == "GB_ENG":
+    elif country == "GB_ENG":
         flag_emoji = ":england:"
     elif country == "GB_NIR":
         flag_emoji = ":flag_gb:"
@@ -191,7 +190,7 @@ def get_flag_emoji(country: str) -> str:
     elif country == "GB_WLS":
         flag_emoji = ":wales:"
     else:
-        flag_emoji = f":flag_{country.lower()}"
+        flag_emoji = f":flag_{country.lower()}:"
 
     return flag_emoji
 
@@ -311,7 +310,7 @@ async def set_flag_autocomplete(
 
 
 def set_flag(username: str, country: str) -> requests.models.Response:
-    url = f"https://api.wiseoldman.net/v2/players{username}/country"
+    url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/country"
     headers = {"userAgent": "Helpful Old Man Discord Bot"}
     json = {"country": country, "adminPassword": Config.SHARED_ADMIN_PASSWORD}
     response = requests.put(url, headers=headers, json=json)
