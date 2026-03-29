@@ -180,7 +180,7 @@ def get_channel(
 
 
 def get_country_name(country: str) -> str:
-    for key, val in Constants.COUNTRIES:
+    for key, val in Constants.COUNTRIES.items():
         if val == country:
             return key
 
