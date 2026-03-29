@@ -179,7 +179,7 @@ def get_channel(
 
 
 def get_flag_emoji(country: str) -> str:
-    if country == "null" or country is None:
+    if country == "null":
         flag_emoji = ":flag_white:"
     elif country == "GB_ENG":
         flag_emoji = ":england:"
@@ -312,6 +312,7 @@ async def set_flag_autocomplete(
 def set_flag(username: str, country: str) -> requests.models.Response:
     url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/country"
     headers = {"userAgent": "Helpful Old Man Discord Bot"}
+    country = country if country != "null" else None
     json = {"country": country, "adminPassword": Config.SHARED_ADMIN_PASSWORD}
     response = requests.put(url, headers=headers, json=json)
     return response
