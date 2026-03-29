@@ -1,4 +1,5 @@
-from typing import Optional, List
+from typing import List
+from typing import Optional
 
 import discord
 import requests
