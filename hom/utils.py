@@ -179,12 +179,12 @@ def get_channel(
     )
 
 
-def get_country_name(country: str) -> str:
+def get_country_name(country: str) -> t.Optional[str]:
     for key, val in Constants.COUNTRIES.items():
         if val == country:
             return key
 
-    return country
+    return None
 
 
 def get_flag_emoji(country: str) -> str:
