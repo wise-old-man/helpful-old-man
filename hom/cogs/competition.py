@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 import discord
 import requests
@@ -55,8 +55,8 @@ class Competition(commands.GroupCog, name="competition"):
             )
             return
 
-        successful_competitions: list[str] = []
-        error_competitions: list[str] = []
+        successful_competitions: List[str] = []
+        error_competitions: List[str] = []
         for comp in response.json():
             comp_id = comp["competitionId"]
             competition_link = (
