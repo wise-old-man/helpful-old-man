@@ -260,14 +260,14 @@ class SupportGroup(discord.ui.View):
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                example_url="group.jpg",
+                example_url="player.jpg",
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                example_url="group.jpg",
+                example_url="player.jpg",
             )
 
     @discord.ui.button(
