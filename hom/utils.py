@@ -25,6 +25,7 @@ __all__ = (
     "get_role",
     "get_user_by_original_message",
     "get_user_ticket_channel",
+    "mod_check",
     "send_log_message",
     "set_flag_autocomplete",
     "set_flag",
@@ -292,6 +293,20 @@ async def update_ticket_for_user(
     assert interaction.client.user
     await send_log_message(interaction, log_content, mod=interaction.client.user)
     return message
+
+
+async def mod_check(interaction: discord.Interaction[commands.Bot]) -> bool:
+    assert isinstance(interaction.user, discord.Member)
+
+    if not any(r.id == Config.MOD_ROLE for r in interaction.user.roles):
+        await interaction.followup.send(
+            f"{Constants.DENIED} You are not allowed to do that.",
+            ephemeral=True,
+        )
+
+        return False
+
+    return True
 
 
 async def send_log_message(
