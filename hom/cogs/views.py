@@ -1,13 +1,13 @@
-import typing as t
-
 import discord
 from discord.ext import commands
 
 from hom import utils
-from hom.config import Config
-from hom.config import Constants
+from hom.config import Config, Constants
+from hom.cogs.group import GroupIdModal, PlayerGroupModal
 
 __all__ = (
+    "GroupDetails",
+    "GroupRemove",
     "Support",
     "SupportCompetition",
     "SupportGroup",
@@ -16,9 +16,6 @@ __all__ = (
     "SupportPlayer",
     "Verify",
 )
-
-ViewT = t.TypeVar("ViewT", bound=discord.ui.View)
-
 
 class Support(discord.ui.View):
     def __init__(self) -> None:
@@ -185,6 +182,7 @@ class SupportGroup(discord.ui.View):
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
                 example_url="group.jpg",
+                view=GroupDetails()
             )
         else:
             await utils.update_ticket_for_user(
@@ -192,6 +190,7 @@ class SupportGroup(discord.ui.View):
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
                 example_url="group.jpg",
+                view = GroupDetails()
             )
 
     @discord.ui.button(
@@ -225,6 +224,7 @@ class SupportGroup(discord.ui.View):
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
                 example_url="group.jpg",
+                view=GroupDetails()
             )
         else:
             await utils.update_ticket_for_user(
@@ -232,6 +232,7 @@ class SupportGroup(discord.ui.View):
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
                 example_url="group.jpg",
+                view=GroupDetails()
             )
 
     @discord.ui.button(
@@ -260,14 +261,16 @@ class SupportGroup(discord.ui.View):
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                example_url="player.jpg",
+                example_url="group.jpg",
+                view=GroupRemove()
             )
         else:
             await utils.update_ticket_for_user(
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                example_url="player.jpg",
+                example_url="group.jpg",
+                view=GroupRemove()
             )
 
     @discord.ui.button(
@@ -697,8 +700,79 @@ class SupportMessageCloseChannel(discord.ui.View):
         )
         await interaction.channel.delete()
 
+class GroupRemove(discord.ui.View):
+    def __init__(self) -> None:
+        super().__init__(timeout=None)
+
+    @discord.ui.button(
+        emoji="\N{LOCK}",
+        label="Close",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:message_close",
+    )
+    async def message_close(
+        self: ViewT, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button[ViewT]
+    ) -> None:
+        assert isinstance(interaction.channel, discord.TextChannel)
+        assert isinstance(interaction.user, discord.Member)
+
+        embed = discord.Embed(description=f"{interaction.user.mention} has closed the ticket.")
+        await interaction.response.defer()
+        await interaction.channel.set_permissions(interaction.user, overwrite=None)
+        await interaction.followup.send(
+            ephemeral=False, embed=embed, view=SupportMessageCloseChannel()
+        )
+
+    @discord.ui.button(
+        emoji=f"{Constants.PEN}",
+        label="Player Lookup",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:player_details",  # must be unique
+    )
+    async def player_lookup(
+        self: ViewT, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button[ViewT]
+    ) -> None:
+        await interaction.response.send_modal(PlayerGroupModal())
+
+class GroupDetails(discord.ui.View):
+    def __init__(self) -> None:
+        super().__init__(timeout=None)
+
+    @discord.ui.button(
+        emoji="\N{LOCK}",
+        label="Close",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:group_details_close",  # must be unique
+    )
+    async def message_close(
+        self: ViewT, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button[ViewT]
+    ) -> None:
+        assert isinstance(interaction.channel, discord.TextChannel)
+        assert isinstance(interaction.user, discord.Member)
+
+        embed = discord.Embed(description=f"{interaction.user.mention} has closed the ticket.")
+        await interaction.response.defer()
+        await interaction.channel.set_permissions(interaction.user, overwrite=None)
+        await interaction.followup.send(
+            ephemeral=False, embed=embed, view = SupportMessageCloseChannel()
+        )
+
+    @discord.ui.button(
+        emoji=Constants.PEN,
+        label="Group Lookup",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:group_details_lookup",
+    )
+    async def group_details(
+        self: ViewT,
+        interaction: discord.Interaction[commands.Bot],
+        _: discord.ui.Button[ViewT],
+    ) -> None:
+        await interaction.response.send_modal(GroupIdModal())
 
 async def setup(bot: commands.Bot) -> None:
+    bot.add_view(GroupDetails())
+    bot.add_view(GroupRemove())
     bot.add_view(Support())
     bot.add_view(SupportCompetition())
     bot.add_view(SupportGroup())

@@ -24,8 +24,10 @@ class Config:
     QUESTIONS_CHANNEL: t.Final[int] = _int("HOM_QUESTIONS_CHANNEL")
     FLAG_CHANNEL: t.Final[int] = _int("HOM_FLAG_CHANNEL")
     MOD_ROLE: t.Final[int] = _int("HOM_MOD_ROLE")
+    GROUP_LEADER_ROLE: t.Final[int] = _int("HOM_GROUP_LEADER_ROLE")
     SHARED_ADMIN_PASSWORD: t.Final[str] = environ["SHARED_ADMIN_PASSWORD"]
     DISCORD_BOT_BASE_API_URL: t.Final[str] = environ["DISCORD_BOT_BASE_API_URL"]
+    DISCORD_BOT_BASE_WEBSITE_URL: t.Final[str] = environ["DISCORD_BOT_BASE_WEBSITE_URL"]
 
     def __init__(self) -> None:
         raise RuntimeError("Config should not be instantiated.")
@@ -35,10 +37,12 @@ class Config:
 class Constants:
     __slots__ = ()
 
+    HEADERS: t.Final[t.Dict[str, str]] = {"userAgent": "Helpful Old Man Discord Bot"}
     ARROW: t.Final[str] = "→"
     PREFIX: t.Final[str] = "!"
     DENIED: t.Final[str] = "❌"
     COMPLETE: t.Final[str] = "✅"
+    PEN: t.Final[str] = "📝"
     FOOTER: t.Final[str] = (
         "As a reminder, all moderators and admins in this "
         "server volunteer to assist in their free time. "
@@ -304,6 +308,7 @@ class Constants:
         "Zambia": "ZM",
         "Zimbabwe": "ZW",
     }
+
 
     def __init__(self) -> None:
         raise RuntimeError("Constants should not be instantiated.")
