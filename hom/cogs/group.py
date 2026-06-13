@@ -29,7 +29,6 @@ class GroupIdModal(discord.ui.Modal, title="Group Lookup"):
             return
 
 
-
         embed = discord.Embed(
             title=f"Group Lookup",
             colour=discord.Colour.blue(),
@@ -45,7 +44,6 @@ class GroupIdModal(discord.ui.Modal, title="Group Lookup"):
         embed.add_field(name="Requested By", value=og_user.mention)
         embed.add_field(name="Requested By ID", value=og_user.id, inline=True)
         embed.add_field(name="Requested By Name", value=og_user.name, inline=True)
-
 
         await interaction.followup.send(embed=embed, view=ApproveDenyGroupRequest(self.group_id.value))
 
@@ -220,6 +218,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
             mod=interaction.user,
         )
         await interaction.followup.send(embed=embed)
+        self.stop()
 
     @discord.ui.button(
         emoji="\N{CLOCKWISE RIGHTWARDS AND LEFTWARDS OPEN CIRCLE ARROWS}",

@@ -8,7 +8,7 @@ import discord
 import requests
 from discord import app_commands
 from discord.ext import commands
-
+import hom.cogs as cogs
 from hom.config import Config
 from hom.config import Constants
 
@@ -145,7 +145,7 @@ async def create_ticket_for_user(
             "answered, feel free to close the ticket."
         )
     )
-    ticket_view = view or views.SupportMessage()
+    ticket_view = view or cogs.views.SupportMessage()
     if example_url:
         file = discord.File(f"hom/assets/{example_url}", filename=example_url)
         embed.set_image(url=f"attachment://{example_url}")
