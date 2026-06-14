@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 from discord.ext import commands
 
@@ -35,6 +37,9 @@ class Support(discord.ui.View):
             content="What do you need assistance with?",
             ephemeral=True,
         )
+        await asyncio.sleep(15)
+        await (await interaction.original_response()).delete()
+
 
     @discord.ui.button(
         label="Competitions",
@@ -49,6 +54,8 @@ class Support(discord.ui.View):
             content="What do you need assistance with?",
             ephemeral=True,
         )
+        await asyncio.sleep(15)
+        await (await interaction.original_response()).delete()
 
     @discord.ui.button(
         label="Players",
@@ -63,6 +70,8 @@ class Support(discord.ui.View):
             content="What do you need assistance with?",
             ephemeral=True,
         )
+        await asyncio.sleep(15)
+        await (await interaction.original_response()).delete()
 
     @discord.ui.button(
         label="Patreon", style=discord.ButtonStyle.green, custom_id="persistent_view:patreon"

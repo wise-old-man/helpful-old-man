@@ -135,7 +135,7 @@ class Competition(commands.GroupCog, name="competition"):
     )
     @app_commands.command(
         name="remove_from_competitions",
-        description="[Mod :lock:]: Remove a player from group competitions.",
+        description="[Mod 🔒]: Remove a player from group competition.",
     )
     async def remove_from_competitions(
         self,
@@ -166,83 +166,107 @@ class Competition(commands.GroupCog, name="competition"):
             return
 
 
-        url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/competitions"
-        response = requests.get(
-            url=url,
-            headers=Constants.HEADERS,
-        )
-
-        if response.status_code != 200:
-            await interaction.followup.send(
-                f"Could not find any competitions related to the username: `{username}`."
-            )
-            return
-
         successful_competitions: List[str] = []
         error_competitions: List[str] = []
         skipped_competitions: List[str] = []
-        for comp in response.json():
-            comp_id = comp["competitionId"]
+
+        if competition_id is not None:
             competition_link = (
-                f"[{comp_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/competitions/{comp_id})"
+                f"[{competition_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/competitions/{competition_id})"
+            )
+            response = requests.delete(
+                url=f"{Config.DISCORD_BOT_BASE_API_URL}/competitions/{competition_id}/participants",
+                json={
+                    "participants": [username],
+                    "adminPassword": Config.SHARED_ADMIN_PASSWORD,
+                },
             )
 
-            if group_id == comp["competition"]["groupId"]:
-                response = requests.delete(
-                    url=f"{Config.DISCORD_BOT_BASE_API_URL}/competitions/{comp_id}/participants",
-                    json={
-                        "participants": [username],
-                        "adminPassword": Config.SHARED_ADMIN_PASSWORD,
-                    },
+            if response.status_code != 200:
+                if "cannot remove all competition participants" in response.text.lower():
+                    skipped_competitions.append(competition_link)
+                elif "none of the players given were competing" in response.text.lower():
+                    skipped_competitions.append(competition_link + " (Player not found)")
+                else:
+                    error_competitions.append(
+                        competition_link + f" {Constants.ARROW} ```{response.text}```"
+                    )
+            else:
+                successful_competitions.append(competition_link)
+        else:
+            url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/competitions"
+            response = requests.get(
+                url=url,
+                headers=Constants.HEADERS,
+            )
+
+            if response.status_code != 200:
+                await interaction.followup.send(
+                    f"Could not find any competitions related to the username: `{username}`."
+                )
+                return
+
+            for comp in response.json():
+                comp_id = comp["competitionId"]
+                competition_link = (
+                    f"[{comp_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/competitions/{comp_id})"
                 )
 
-                if response.status_code != 200:
-                    if "cannot remove all competition participants" in response.text.lower():
-                        skipped_competitions.append(competition_link)
-                    else:
-                        error_competitions.append(
-                            competition_link + f" {Constants.ARROW} ```{response.text}```"
-                        )
-                    continue
+                if group_id == comp["competition"]["groupId"]:
+                    response = requests.delete(
+                        url=f"{Config.DISCORD_BOT_BASE_API_URL}/competitions/{comp_id}/participants",
+                        json={
+                            "participants": [username],
+                            "adminPassword": Config.SHARED_ADMIN_PASSWORD,
+                        },
+                    )
 
-                successful_competitions.append(competition_link)
+                    if response.status_code != 200:
+                        if "cannot remove all competition participants" in response.text.lower():
+                            skipped_competitions.append(competition_link)
+                        elif "none of the players given were competing" in response.text.lower():
+                            skipped_competitions.append(competition_link + " (Player not found)")
+                        else:
+                            error_competitions.append(
+                                competition_link + f" {Constants.ARROW} ```{response.text}```"
+                            )
+                        continue
 
-        success_message = (
-            f"Successfully removed `{username}` from the following competitions: "
-            + ", ".join(successful_competitions)[:1900]
+                    successful_competitions.append(competition_link)
+
+        if not any([successful_competitions, error_competitions, skipped_competitions]):
+            await interaction.followup.send(
+                f"No competitions were found for `{username}` under that group."
+            )
+            return
+
+        embed = discord.Embed(
+            title=f"Competition Removal: `{username}`",
+            color=Constants.BLUE,
         )
-        error_message = (
-            f"Could not remove `{username}` from the following competitions: "
-            + "\n, ".join(error_competitions)[:1900]
-        )
-        skipped_message = (
-            f"Skipped the following competitions (removing `{username}` would leave them empty): "
-            + ", ".join(skipped_competitions)[:1900]
-        )
 
-        channel_to_send = interaction.channel
+        if successful_competitions:
+            embed.add_field(
+                name=f"{Constants.COMPLETE} Removed",
+                value=", ".join(successful_competitions)[:1024],
+                inline=False,
+            )
 
-        if isinstance(
-            channel_to_send,
-            (
-                discord.TextChannel,
-                discord.VoiceChannel,
-                discord.StageChannel,
-                discord.Thread,
-                discord.DMChannel,
-                discord.GroupChannel,
-            ),
-        ):
-            if successful_competitions:
-                await channel_to_send.send(success_message)
-            if error_competitions:
-                await channel_to_send.send(error_message)
-            if skipped_competitions:
-                await channel_to_send.send(skipped_message)
+        if error_competitions:
+            embed.add_field(
+                name=f"{Constants.DENIED} Errors",
+                value="\n".join(error_competitions)[:1024],
+                inline=False,
+            )
 
-        await interaction.followup.send(
-            f"{Constants.COMPLETE} Processed request.",
-        )
+        if skipped_competitions:
+            embed.add_field(
+                name="Skipped",
+                value=", ".join(skipped_competitions)[:1024],
+                inline=False,
+            )
+
+        await interaction.followup.send(embed=embed)
 
         requested_by = (
             f"\nRequested by: {requester.mention}, `{requester.id}`, `{requester.name}`"

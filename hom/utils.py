@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import functools
 import io
@@ -109,7 +110,9 @@ async def create_ticket_for_user(
     existing_ticket_channel = get_user_ticket_channel(interaction.guild, interaction.user)
     if existing_ticket_channel:
         msg_content = f":envelope:  Click [here]({existing_ticket_channel.jump_url}) to view your open ticket."
-        await interaction.followup.send(content=msg_content, ephemeral=True)
+        msg = await interaction.followup.send(content=msg_content, ephemeral=True)
+        await asyncio.sleep(15)
+        await msg.delete()
         return existing_ticket_channel
 
     channel_name = f"help-{interaction.user.display_name[:15]}"
@@ -163,7 +166,10 @@ async def create_ticket_for_user(
             f"{interaction.user.mention}", embed=embed, view=ticket_view
         )
 
-    await interaction.followup.send(content, ephemeral=True)
+    msg = await interaction.followup.send(content, ephemeral=True)
+    await asyncio.sleep(15)
+    await msg.delete()
+
     log_content = (
         f"({new_text_channel.topic}) Ticket opened for user:\n``{interaction.user.display_name}`` "
         f"- {interaction.user.mention}"
