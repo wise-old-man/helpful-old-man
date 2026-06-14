@@ -251,7 +251,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
 
         ticket_user = await utils.get_user_by_original_message(interaction.channel)
         await ticket_user.send(
-            f"Your verification code for group [{group_id}]({config.Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups/{group_id}) has been reset.\n"
+            f"Your verification code for group [{group_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups/{group_id}) has been reset.\n"
             f"```{reset_code['newCode']}```"
             f"Keep this code secret — it can be used to edit or delete your group."
         )

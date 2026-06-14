@@ -4,6 +4,7 @@ from discord.ext import commands
 from hom import utils
 from hom.config import Config, Constants
 from hom.cogs.group import GroupIdModal, PlayerGroupModal
+from hom.utils import ViewT
 
 __all__ = (
     "GroupDetails",
