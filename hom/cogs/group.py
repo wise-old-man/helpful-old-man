@@ -6,6 +6,39 @@ from hom.bot import Bot
 from hom.config import Config, Constants
 from hom.utils import ViewT
 
+
+async def _build_group_lookup_permission_message(
+    interaction: discord.Interaction[Bot],
+) -> str:
+    message = f"{Constants.DENIED} You do not have the required permissions to use this."
+
+    if not isinstance(interaction.channel, discord.TextChannel):
+        return message
+
+    if interaction.client.user is None:
+        return message
+
+    async for channel_message in interaction.channel.history(limit=None):
+        if channel_message.author.id != interaction.client.user.id:
+            continue
+
+        if not channel_message.embeds:
+            continue
+
+        if not any(
+            mentioned_user.id == interaction.user.id
+            for mentioned_user in channel_message.mentions
+        ):
+            continue
+
+        return (
+            f"{message}\n"
+            f"If you haven't already, please follow these instructions: {channel_message.jump_url}"
+        )
+
+    return message
+
+
 class GroupIdModal(discord.ui.Modal, title="Group Lookup"):
     group_id = discord.ui.TextInput(
         label="Group ID",
@@ -44,6 +77,15 @@ class GroupIdModal(discord.ui.Modal, title="Group Lookup"):
         embed.add_field(name="Requested By", value=og_user.mention)
         embed.add_field(name="Requested By ID", value=og_user.id, inline=True)
         embed.add_field(name="Requested By Name", value=og_user.name, inline=True)
+        embed.add_field(
+            name="\u200b",
+            value=(
+                "-# Not your group? You can find your group id on the "
+                f"[website]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups) just below the group "
+                "name and description."
+            ),
+            inline=False,
+        )
 
         await interaction.followup.send(embed=embed, view=ApproveDenyGroupRequest(self.group_id.value))
 
@@ -172,7 +214,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
 
         if not any(role.id == Config.MOD_ROLE for role in interaction.user.roles):
             await interaction.followup.send(
-                f"{Constants.DENIED} You do not have the required permissions to use this.",
+                await _build_group_lookup_permission_message(interaction),
                 ephemeral=True
             )
             return
@@ -235,7 +277,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
 
         if not any(role.id == Config.MOD_ROLE for role in interaction.user.roles):
             await interaction.followup.send(
-                f"{Constants.DENIED} You do not have the required permissions to use this.",
+                await _build_group_lookup_permission_message(interaction),
                 ephemeral=True
             )
             return
@@ -260,6 +302,17 @@ class ApproveDenyGroupRequest(discord.ui.View):
         embed.add_field(name="Group Name", value=data["name"])
         embed.description = f"Verification code successfully reset. A DM has been sent to {ticket_user.mention}."
         await interaction.followup.send(embed=embed)
+
+    @discord.ui.button(
+        emoji=Constants.PEN,
+        label="Group Lookup",
+        style=discord.ButtonStyle.blurple,
+        custom_id="persistent_view:approve_deny_group_lookup",
+    )
+    async def group_lookup(
+        self: ViewT, interaction: discord.Interaction[Bot], _: discord.ui.Button[ViewT]
+    ) -> None:
+        await interaction.response.send_modal(GroupIdModal())
 
 
 async def setup(bot: commands.Bot) -> None:
