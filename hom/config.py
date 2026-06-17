@@ -54,6 +54,7 @@ class Config:
     SHARED_ADMIN_PASSWORD: t.Final[str] = environ["SHARED_ADMIN_PASSWORD"]
     DISCORD_BOT_BASE_API_URL: t.Final[str] = _container_host_url("DISCORD_BOT_BASE_API_URL")
     DISCORD_BOT_BASE_WEBSITE_URL: t.Final[str] = environ["DISCORD_BOT_BASE_WEBSITE_URL"]
+    HOM_API_KEY: t.Final[str] = environ["HOM_API_KEY"]
 
     def __init__(self) -> None:
         raise RuntimeError("Config should not be instantiated.")
@@ -63,7 +64,7 @@ class Config:
 class Constants:
     __slots__ = ()
 
-    HEADERS: t.Final[t.Dict[str, str]] = {"userAgent": "Helpful Old Man Discord Bot"}
+    HEADERS: t.Final[t.Dict[str, str]] = {"userAgent": "Helpful Old Man Discord Bot","x-api-key":f'{Config.HOM_API_KEY}'}
     ARROW: t.Final[str] = "→"
     PREFIX: t.Final[str] = "!"
     DENIED: t.Final[str] = "❌"

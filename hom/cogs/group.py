@@ -94,14 +94,14 @@ class PlayerGroupModal(discord.ui.Modal, title="Player Lookup"):
     rsn = discord.ui.TextInput(
         label="Runescape Name",
         placeholder="Enter a username...",
-        default="PhyrWall",
+        default="",
         min_length=1,
         max_length=12,
     )
     group_id = discord.ui.TextInput(
         label="Group ID (listed on group's page)",
         placeholder="ex. 123",
-        default="1",
+        default="",
         min_length=1,
         max_length=6,
     )

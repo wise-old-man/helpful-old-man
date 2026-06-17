@@ -30,8 +30,8 @@ class Competition(commands.GroupCog, name="competition"):
         url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/competitions"
 
         response = requests.get(
-            url = url,
-            headers=Constants.HEADERS,
+            url=url,
+            headers=Constants.HEADERS
         )
 
         if response.status_code != 200:
@@ -180,6 +180,7 @@ class Competition(commands.GroupCog, name="competition"):
                     "participants": [username],
                     "adminPassword": Config.SHARED_ADMIN_PASSWORD,
                 },
+                headers=Constants.HEADERS,
             )
 
             if response.status_code != 200:
@@ -219,6 +220,7 @@ class Competition(commands.GroupCog, name="competition"):
                             "participants": [username],
                             "adminPassword": Config.SHARED_ADMIN_PASSWORD,
                         },
+                        headers=Constants.HEADERS,
                     )
 
                     if response.status_code != 200:
