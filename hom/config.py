@@ -1,5 +1,8 @@
 import typing as t
 from os import environ
+from pathlib import Path
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 
 from dotenv import load_dotenv
 
@@ -10,6 +13,30 @@ load_dotenv()
 
 def _int(var: str) -> int:
     return int(environ[var])
+
+
+def _running_in_docker() -> bool:
+    return Path("/.dockerenv").exists()
+
+
+def _container_host_url(var: str) -> str:
+    value = environ[var]
+    if not _running_in_docker():
+        return value
+
+    parsed = urlsplit(value)
+    if parsed.hostname not in {"localhost", "127.0.0.1"}:
+        return value
+
+    auth = ""
+    if parsed.username:
+        auth = parsed.username
+        if parsed.password:
+            auth += f":{parsed.password}"
+        auth += "@"
+
+    port = f":{parsed.port}" if parsed.port is not None else ""
+    return urlunsplit(parsed._replace(netloc=f"{auth}host.docker.internal{port}"))
 
 
 @t.final
@@ -24,8 +51,11 @@ class Config:
     QUESTIONS_CHANNEL: t.Final[int] = _int("HOM_QUESTIONS_CHANNEL")
     FLAG_CHANNEL: t.Final[int] = _int("HOM_FLAG_CHANNEL")
     MOD_ROLE: t.Final[int] = _int("HOM_MOD_ROLE")
+    GROUP_LEADER_ROLE: t.Final[int] = _int("HOM_GROUP_LEADER_ROLE")
     SHARED_ADMIN_PASSWORD: t.Final[str] = environ["SHARED_ADMIN_PASSWORD"]
-    DISCORD_BOT_BASE_API_URL: t.Final[str] = environ["DISCORD_BOT_BASE_API_URL"]
+    DISCORD_BOT_BASE_API_URL: t.Final[str] = _container_host_url("HOM_BASE_API_URL")
+    DISCORD_BOT_BASE_WEBSITE_URL: t.Final[str] = environ["HOM_BASE_WEBSITE_URL"]
+    HOM_API_KEY: t.Final[str] = environ["HOM_API_KEY"]
 
     def __init__(self) -> None:
         raise RuntimeError("Config should not be instantiated.")
@@ -35,10 +65,15 @@ class Config:
 class Constants:
     __slots__ = ()
 
+    HEADERS: t.Final[t.Dict[str, str]] = {
+        "userAgent": "Helpful Old Man Discord Bot",
+        "x-api-key": f"{Config.HOM_API_KEY}",
+    }
     ARROW: t.Final[str] = "→"
     PREFIX: t.Final[str] = "!"
     DENIED: t.Final[str] = "❌"
     COMPLETE: t.Final[str] = "✅"
+    PEN: t.Final[str] = "📝"
     FOOTER: t.Final[str] = (
         "As a reminder, all moderators and admins in this "
         "server volunteer to assist in their free time. "

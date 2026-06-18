@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import functools
 import io
@@ -9,7 +10,6 @@ import requests
 from discord import app_commands
 from discord.ext import commands
 
-from hom.cogs import views
 from hom.config import Config
 from hom.config import Constants
 
@@ -25,10 +25,20 @@ __all__ = (
     "get_role",
     "get_user_by_original_message",
     "get_user_ticket_channel",
+    "mod_check",
     "send_log_message",
     "set_flag_autocomplete",
     "set_flag",
 )
+
+ViewT = t.TypeVar("ViewT", bound=discord.ui.View)
+
+
+def _default_ticket_view() -> discord.ui.View:
+    # Import lazily to avoid a module cycle during startup.
+    from hom.cogs.views import SupportMessage
+
+    return SupportMessage()
 
 
 async def archive_channel_messages(channel: discord.TextChannel) -> str:
@@ -94,17 +104,21 @@ async def create_ticket_for_user(
     instructions: str,
     button_label: t.Optional[str],
     example_url: t.Optional[str] = None,
+    view: t.Optional[discord.ui.View] = None,
 ) -> discord.TextChannel:
     assert interaction.guild
 
     existing_ticket_channel = get_user_ticket_channel(interaction.guild, interaction.user)
     if existing_ticket_channel:
         msg_content = f":envelope:  Click [here]({existing_ticket_channel.jump_url}) to view your open ticket."
-        await interaction.followup.send(content=msg_content, ephemeral=True)
+        msg = await interaction.followup.send(content=msg_content, ephemeral=True, wait=True)
+        await asyncio.sleep(15)
+        await msg.delete()
         return existing_ticket_channel
 
     channel_name = f"help-{interaction.user.display_name[:15]}"
     tickets_category = get_category(interaction.guild, Config.TICKET_CATEGORY)
+    bot_member = interaction.guild.me
     if not (mod_role := get_role(interaction.guild, Config.MOD_ROLE)):
         await interaction.followup.send("The moderator role is missing from the server.")
         raise RuntimeError(f"Couldn't find mod role with ID: {Config.MOD_ROLE}")
@@ -116,7 +130,7 @@ async def create_ticket_for_user(
         topic=button_label or "Unknown (This is a bug)",
         overwrites={
             mod_role: discord.PermissionOverwrite(read_messages=True),
-            interaction.guild.me: discord.PermissionOverwrite(read_messages=True),
+            bot_member: discord.PermissionOverwrite(read_messages=True),
             t.cast(discord.Member, interaction.user): discord.PermissionOverwrite(
                 read_messages=True
             ),
@@ -142,19 +156,20 @@ async def create_ticket_for_user(
             "answered, feel free to close the ticket."
         )
     )
-
+    ticket_view = view or _default_ticket_view()
     if example_url:
         file = discord.File(f"hom/assets/{example_url}", filename=example_url)
         embed.set_image(url=f"attachment://{example_url}")
         await new_text_channel.send(
-            f"{interaction.user.mention}", embed=embed, view=views.SupportMessage(), file=file
+            f"{interaction.user.mention}", embed=embed, view=ticket_view, file=file
         )
     else:
-        await new_text_channel.send(
-            f"{interaction.user.mention}", embed=embed, view=views.SupportMessage()
-        )
+        await new_text_channel.send(f"{interaction.user.mention}", embed=embed, view=ticket_view)
 
-    await interaction.followup.send(content, ephemeral=True)
+    msg = await interaction.followup.send(content, ephemeral=True, wait=True)
+    await asyncio.sleep(15)
+    await msg.delete()
+
     log_content = (
         f"({new_text_channel.topic}) Ticket opened for user:\n``{interaction.user.display_name}`` "
         f"- {interaction.user.mention}"
@@ -245,6 +260,7 @@ async def update_ticket_for_user(
     instructions: str,
     button_label: t.Optional[str],
     example_url: t.Optional[str] = None,
+    view: t.Optional[discord.ui.View] = None,
 ) -> t.Optional[discord.Message]:
     assert interaction.guild
     assert isinstance(interaction.channel, discord.TextChannel)
@@ -264,7 +280,7 @@ async def update_ticket_for_user(
             "answered, feel free to close the ticket."
         )
     )
-
+    ticket_view = view or _default_ticket_view()
     if example_url:
         file = discord.File(f"hom/assets/{example_url}", filename=example_url)
         embed.set_image(url=f"attachment://{example_url}")
@@ -273,14 +289,14 @@ async def update_ticket_for_user(
         await interaction.channel.send(
             (f"Hey {og_user.mention}, please check the updated instructions."),
             embed=embed,
-            view=views.SupportMessage(),
+            view=ticket_view,
             file=file,
         )
     else:
         await interaction.channel.send(
             (f"Hey {og_user.mention}, please check the updated instructions."),
             embed=embed,
-            view=views.SupportMessage(),
+            view=ticket_view,
         )
 
     await interaction.edit_original_response(content="Updated ticket for user.", view=None)
@@ -292,6 +308,20 @@ async def update_ticket_for_user(
     assert interaction.client.user
     await send_log_message(interaction, log_content, mod=interaction.client.user)
     return message
+
+
+async def mod_check(interaction: discord.Interaction[commands.Bot]) -> bool:
+    assert isinstance(interaction.user, discord.Member)
+
+    if not any(r.id == Config.MOD_ROLE for r in interaction.user.roles):
+        await interaction.followup.send(
+            f"{Constants.DENIED} You are not allowed to do that.",
+            ephemeral=True,
+        )
+
+        return False
+
+    return True
 
 
 async def send_log_message(

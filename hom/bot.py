@@ -1,9 +1,11 @@
 from pathlib import Path
 
+import aiohttp
 import discord
 from discord.ext import commands
 
 from hom.config import Constants
+from hom.wom import WomClient
 
 __all__ = ("Bot",)
 
@@ -11,8 +13,11 @@ __all__ = ("Bot",)
 class Bot(commands.Bot):
     def __init__(self) -> None:
         super().__init__(Constants.PREFIX, intents=discord.Intents.all())
+        self.wom: WomClient
 
     async def setup_hook(self) -> None:
+        session = aiohttp.ClientSession()
+        self.wom = WomClient(session)
         for path in Path("./hom/cogs").glob("[!_]*.py"):
             await self.load_extension(f"hom.cogs.{path.stem}")
 

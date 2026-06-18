@@ -1,9 +1,11 @@
 [tool.pyright]
 include = ["hom"]
+pythonVersion = "3.8"
 typeCheckingMode = "strict"
 
 [tool.mypy]
 packages = ["hom"]
+python_version = "3.8"
 strict = true
 
 [tool.isort]

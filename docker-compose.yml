@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   hom-bot:
     container_name: hom-bot
