@@ -1,4 +1,6 @@
-from typing import List, Optional
+from typing import Any
+from typing import List
+from typing import Optional
 
 import discord
 import requests
@@ -7,7 +9,8 @@ from discord.ext import commands
 
 from hom import utils
 from hom.bot import Bot
-from hom.config import Config, Constants
+from hom.config import Config
+from hom.config import Constants
 
 __all__ = ("Competition",)
 
@@ -19,7 +22,7 @@ class Competition(commands.GroupCog, name="competition"):
 
     async def competition_autocomplete(
         self,
-        interaction: discord.Interaction,
+        interaction: discord.Interaction[Any],
         current: str,
     ) -> List[app_commands.Choice[int]]:
         username = getattr(interaction.namespace, "username", None)
@@ -29,10 +32,7 @@ class Competition(commands.GroupCog, name="competition"):
 
         url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/competitions"
 
-        response = requests.get(
-            url=url,
-            headers=Constants.HEADERS
-        )
+        response = requests.get(url=url, headers=Constants.HEADERS)
 
         if response.status_code != 200:
             return []
@@ -45,30 +45,25 @@ class Competition(commands.GroupCog, name="competition"):
             comp_id = competition.get("competitionId")
             comp_name = competition.get("competition", {}).get("title")
 
-            if comp_id is None:
+            if not isinstance(comp_id, int):
                 continue
 
             comp_id_str = str(comp_id)
 
-            if (
-                not search
-                or search in comp_id_str.lower()
-            ):
+            if not search or search in comp_id_str.lower():
                 label = f"{comp_id} - {comp_name}"
 
                 # Discord choice names have a max length of 100 chars
                 if len(label) > 100:
                     label = label[:97] + "..."
 
-                choices.append(
-                    app_commands.Choice(name=label, value=int(comp_id))
-                )
+                choices.append(app_commands.Choice(name=label, value=int(comp_id)))
 
         return choices[:25]
 
     async def group_autocomplete(
         self,
-        interaction: discord.Interaction,
+        interaction: discord.Interaction[Any],
         current: str,
     ) -> List[app_commands.Choice[int]]:
         username = getattr(interaction.namespace, "username", None)
@@ -90,39 +85,30 @@ class Competition(commands.GroupCog, name="competition"):
         search = current.lower().strip()
         choices: List[app_commands.Choice[int]] = []
 
-        seen = set()
+        seen: set[int] = set()
 
         for entry in data:
             group_id = entry.get("groupId")
             group_name = entry.get("group", {}).get("name", "")
 
-            if group_id is None or group_id in seen:
+            if not isinstance(group_id, int) or group_id in seen:
                 continue
 
             seen.add(group_id)
 
-            if group_id is None:
-                continue
-
             group_id_str = str(group_id)
 
-            if (
-                not search
-                or search in group_id_str.lower()
-                or search in group_name.lower()
-            ):
+            if not search or search in group_id_str.lower() or search in group_name.lower():
                 label = f"{group_id} - {group_name}"
 
                 if len(label) > 100:
                     label = label[:97] + "..."
 
-                choices.append(
-                    app_commands.Choice(name=label, value=int(group_id))
-                )
+                choices.append(app_commands.Choice(name=label, value=int(group_id)))
 
         return choices[:25]
 
-    @app_commands.guild_only()
+    @app_commands.guild_only()  # type: ignore[arg-type]
     @app_commands.describe(
         username="The username of the player you are removing from competitions.",
         group_id="The group id being used for removal of all group competitions.",
@@ -165,15 +151,12 @@ class Competition(commands.GroupCog, name="competition"):
             )
             return
 
-
         successful_competitions: List[str] = []
         error_competitions: List[str] = []
         skipped_competitions: List[str] = []
 
         if competition_id is not None:
-            competition_link = (
-                f"[{competition_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/competitions/{competition_id})"
-            )
+            competition_link = f"[{competition_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/competitions/{competition_id})"
             response = requests.delete(
                 url=f"{Config.DISCORD_BOT_BASE_API_URL}/competitions/{competition_id}/participants",
                 json={
@@ -285,4 +268,3 @@ class Competition(commands.GroupCog, name="competition"):
 
 async def setup(bot: Bot) -> None:
     await bot.add_cog(Competition(bot))
-

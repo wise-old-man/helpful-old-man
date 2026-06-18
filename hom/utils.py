@@ -9,6 +9,7 @@ import discord
 import requests
 from discord import app_commands
 from discord.ext import commands
+
 from hom.config import Config
 from hom.config import Constants
 
@@ -110,13 +111,14 @@ async def create_ticket_for_user(
     existing_ticket_channel = get_user_ticket_channel(interaction.guild, interaction.user)
     if existing_ticket_channel:
         msg_content = f":envelope:  Click [here]({existing_ticket_channel.jump_url}) to view your open ticket."
-        msg = await interaction.followup.send(content=msg_content, ephemeral=True)
+        msg = await interaction.followup.send(content=msg_content, ephemeral=True, wait=True)
         await asyncio.sleep(15)
         await msg.delete()
         return existing_ticket_channel
 
     channel_name = f"help-{interaction.user.display_name[:15]}"
     tickets_category = get_category(interaction.guild, Config.TICKET_CATEGORY)
+    bot_member = interaction.guild.me
     if not (mod_role := get_role(interaction.guild, Config.MOD_ROLE)):
         await interaction.followup.send("The moderator role is missing from the server.")
         raise RuntimeError(f"Couldn't find mod role with ID: {Config.MOD_ROLE}")
@@ -128,7 +130,7 @@ async def create_ticket_for_user(
         topic=button_label or "Unknown (This is a bug)",
         overwrites={
             mod_role: discord.PermissionOverwrite(read_messages=True),
-            interaction.guild.me: discord.PermissionOverwrite(read_messages=True),
+            bot_member: discord.PermissionOverwrite(read_messages=True),
             t.cast(discord.Member, interaction.user): discord.PermissionOverwrite(
                 read_messages=True
             ),
@@ -162,11 +164,9 @@ async def create_ticket_for_user(
             f"{interaction.user.mention}", embed=embed, view=ticket_view, file=file
         )
     else:
-        await new_text_channel.send(
-            f"{interaction.user.mention}", embed=embed, view=ticket_view
-        )
+        await new_text_channel.send(f"{interaction.user.mention}", embed=embed, view=ticket_view)
 
-    msg = await interaction.followup.send(content, ephemeral=True)
+    msg = await interaction.followup.send(content, ephemeral=True, wait=True)
     await asyncio.sleep(15)
     await msg.delete()
 

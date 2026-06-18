@@ -1,7 +1,8 @@
 import typing as t
 from os import environ
 from pathlib import Path
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 
 from dotenv import load_dotenv
 
@@ -64,7 +65,10 @@ class Config:
 class Constants:
     __slots__ = ()
 
-    HEADERS: t.Final[t.Dict[str, str]] = {"userAgent": "Helpful Old Man Discord Bot","x-api-key":f'{Config.HOM_API_KEY}'}
+    HEADERS: t.Final[t.Dict[str, str]] = {
+        "userAgent": "Helpful Old Man Discord Bot",
+        "x-api-key": f"{Config.HOM_API_KEY}",
+    }
     ARROW: t.Final[str] = "→"
     PREFIX: t.Final[str] = "!"
     DENIED: t.Final[str] = "❌"
@@ -335,7 +339,6 @@ class Constants:
         "Zambia": "ZM",
         "Zimbabwe": "ZW",
     }
-
 
     def __init__(self) -> None:
         raise RuntimeError("Constants should not be instantiated.")

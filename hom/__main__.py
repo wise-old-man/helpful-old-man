@@ -5,7 +5,7 @@ from hom.config import Config
 
 if __name__ == "__main__":
     if os.name != "nt":
-        import uvloop
+        import uvloop  # type: ignore[import]
 
         # Faster drop in replacement for the asyncio event loop
         # Only works on unix-like systems

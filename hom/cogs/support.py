@@ -8,7 +8,8 @@ from discord.ext import commands
 from hom import utils
 from hom.bot import Bot
 from hom.cogs import views
-from hom.config import Config, Constants
+from hom.config import Config
+from hom.config import Constants
 
 __all__ = ("Support",)
 

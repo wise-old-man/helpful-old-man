@@ -1,8 +1,8 @@
 from pathlib import Path
 
+import aiohttp
 import discord
 from discord.ext import commands
-import aiohttp
 
 from hom.config import Constants
 from hom.wom import WomClient
@@ -20,7 +20,6 @@ class Bot(commands.Bot):
         self.wom = WomClient(session)
         for path in Path("./hom/cogs").glob("[!_]*.py"):
             await self.load_extension(f"hom.cogs.{path.stem}")
-
 
     async def on_ready(self) -> None:
         user = self.user.display_name if self.user else "Bot"

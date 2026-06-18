@@ -4,8 +4,10 @@ import discord
 from discord.ext import commands
 
 from hom import utils
-from hom.config import Config, Constants
-from hom.cogs.group import GroupIdModal, PlayerGroupModal
+from hom.cogs.group import GroupIdModal
+from hom.cogs.group import PlayerGroupModal
+from hom.config import Config
+from hom.config import Constants
 from hom.utils import ViewT
 
 __all__ = (
@@ -19,6 +21,7 @@ __all__ = (
     "SupportPlayer",
     "Verify",
 )
+
 
 class Support(discord.ui.View):
     def __init__(self) -> None:
@@ -39,7 +42,6 @@ class Support(discord.ui.View):
         )
         await asyncio.sleep(15)
         await (await interaction.original_response()).delete()
-
 
     @discord.ui.button(
         label="Competitions",
@@ -192,7 +194,7 @@ class SupportGroup(discord.ui.View):
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
                 example_url="group.jpg",
-                view=GroupDetails()
+                view=GroupDetails(),
             )
         else:
             await utils.update_ticket_for_user(
@@ -200,7 +202,7 @@ class SupportGroup(discord.ui.View):
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
                 example_url="group.jpg",
-                view = GroupDetails()
+                view=GroupDetails(),
             )
 
     @discord.ui.button(
@@ -234,7 +236,7 @@ class SupportGroup(discord.ui.View):
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
                 example_url="group.jpg",
-                view=GroupDetails()
+                view=GroupDetails(),
             )
         else:
             await utils.update_ticket_for_user(
@@ -242,7 +244,7 @@ class SupportGroup(discord.ui.View):
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
                 example_url="group.jpg",
-                view=GroupDetails()
+                view=GroupDetails(),
             )
 
     @discord.ui.button(
@@ -272,7 +274,7 @@ class SupportGroup(discord.ui.View):
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
                 example_url="group.jpg",
-                view=GroupRemove()
+                view=GroupRemove(),
             )
         else:
             await utils.update_ticket_for_user(
@@ -280,7 +282,7 @@ class SupportGroup(discord.ui.View):
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
                 example_url="group.jpg",
-                view=GroupRemove()
+                view=GroupRemove(),
             )
 
     @discord.ui.button(
@@ -710,6 +712,7 @@ class SupportMessageCloseChannel(discord.ui.View):
         )
         await interaction.channel.delete()
 
+
 class GroupRemove(discord.ui.View):
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -744,6 +747,7 @@ class GroupRemove(discord.ui.View):
     ) -> None:
         await interaction.response.send_modal(PlayerGroupModal())
 
+
 class GroupDetails(discord.ui.View):
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -764,7 +768,7 @@ class GroupDetails(discord.ui.View):
         await interaction.response.defer()
         await interaction.channel.set_permissions(interaction.user, overwrite=None)
         await interaction.followup.send(
-            ephemeral=False, embed=embed, view = SupportMessageCloseChannel()
+            ephemeral=False, embed=embed, view=SupportMessageCloseChannel()
         )
 
     @discord.ui.button(
@@ -779,6 +783,7 @@ class GroupDetails(discord.ui.View):
         _: discord.ui.Button[ViewT],
     ) -> None:
         await interaction.response.send_modal(GroupIdModal())
+
 
 async def setup(bot: commands.Bot) -> None:
     bot.add_view(GroupDetails())
