@@ -355,7 +355,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
         await utils.send_log_message(
             interaction,
             f"Group: [{group_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups/{group_id})\n"
-            f"Verified for: {ticket_user.mention}, `{ticket_user.id}`, `{ticket_user.name}`",
+            f"Verified by: {ticket_user.mention}, `{ticket_user.id}`, `{ticket_user.name}`",
             title="Verified Group",
             mod=interaction.user,
         )
