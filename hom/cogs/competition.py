@@ -1,6 +1,7 @@
 from typing import Any
 from typing import List
 from typing import Optional
+from typing import Set
 
 import discord
 import requests
@@ -85,7 +86,7 @@ class Competition(commands.GroupCog, name="competition"):
         search = current.lower().strip()
         choices: List[app_commands.Choice[int]] = []
 
-        seen: set[int] = set()
+        seen: Set[int] = set()
 
         for entry in data:
             group_id = entry.get("groupId")

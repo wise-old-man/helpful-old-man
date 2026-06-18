@@ -1,4 +1,7 @@
 from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Union
 
 import aiohttp
 
@@ -11,7 +14,7 @@ class WomClient:
         self._session = session
         self._base = Config.DISCORD_BOT_BASE_API_URL
 
-    async def get_group(self, group_id: str | int) -> dict[str, Any] | None:
+    async def get_group(self, group_id: Union[str, int]) -> Optional[Dict[str, Any]]:
         async with self._session.get(
             f"{self._base}/groups/{group_id}", headers=Constants.HEADERS
         ) as r:
@@ -25,7 +28,7 @@ class WomClient:
         ) as r:
             return r.status == 200
 
-    async def reset_group_code(self, group_id: str | int) -> dict[str, Any] | None:
+    async def reset_group_code(self, group_id: Union[str, int]) -> Optional[Dict[str, Any]]:
         try:
             async with self._session.put(
                 f"{self._base}/groups/{group_id}/reset-code",
@@ -37,7 +40,9 @@ class WomClient:
         except (aiohttp.ClientError, TimeoutError):
             return None
 
-    async def remove_player_group(self, rsn: str, group_id: str | int) -> dict[str, Any] | None:
+    async def remove_player_group(
+        self, rsn: str, group_id: Union[str, int]
+    ) -> Optional[Dict[str, Any]]:
         try:
             async with self._session.delete(
                 f"{self._base}/groups/{group_id}/members",
