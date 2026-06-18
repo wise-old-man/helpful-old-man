@@ -53,8 +53,8 @@ class Config:
     MOD_ROLE: t.Final[int] = _int("HOM_MOD_ROLE")
     GROUP_LEADER_ROLE: t.Final[int] = _int("HOM_GROUP_LEADER_ROLE")
     SHARED_ADMIN_PASSWORD: t.Final[str] = environ["SHARED_ADMIN_PASSWORD"]
-    DISCORD_BOT_BASE_API_URL: t.Final[str] = _container_host_url("HOM_DISCORD_BOT_BASE_API_URL")
-    DISCORD_BOT_BASE_WEBSITE_URL: t.Final[str] = environ["HOM_DISCORD_BOT_BASE_WEBSITE_URL"]
+    DISCORD_BOT_BASE_API_URL: t.Final[str] = _container_host_url("HOM_BASE_API_URL")
+    DISCORD_BOT_BASE_WEBSITE_URL: t.Final[str] = environ["HOM_BASE_WEBSITE_URL"]
     HOM_API_KEY: t.Final[str] = environ["HOM_API_KEY"]
 
     def __init__(self) -> None:
