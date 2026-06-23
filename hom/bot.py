@@ -12,7 +12,11 @@ __all__ = ("Bot",)
 
 class Bot(commands.Bot):
     def __init__(self) -> None:
-        super().__init__(Constants.PREFIX, intents=discord.Intents.all())
+        super().__init__(
+            Constants.PREFIX,
+            intents=discord.Intents.all(),
+            help_command=None,
+        )
         self.wom: WomClient
 
     async def setup_hook(self) -> None:
