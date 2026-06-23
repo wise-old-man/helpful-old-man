@@ -15,6 +15,11 @@ def _int(var: str) -> int:
     return int(environ[var])
 
 
+def _csv(var: str) -> t.Tuple[str, ...]:
+    value = environ.get(var, "")
+    return tuple(part.strip() for part in value.split(",") if part.strip())
+
+
 def _running_in_docker() -> bool:
     return Path("/.dockerenv").exists()
 
@@ -56,7 +61,7 @@ class Config:
     DISCORD_BOT_BASE_API_URL: t.Final[str] = _container_host_url("HOM_BASE_API_URL")
     DISCORD_BOT_BASE_WEBSITE_URL: t.Final[str] = environ["HOM_BASE_WEBSITE_URL"]
     HOM_API_KEY: t.Final[str] = environ["HOM_API_KEY"]
-    GITHUB_REPOSITORY: t.Final[t.Optional[str]] = environ.get("HOM_GITHUB_REPOSITORY")
+    GITHUB_REPOSITORIES: t.Final[t.Tuple[str, ...]] = _csv("HOM_GITHUB_REPOSITORIES")
     GITHUB_TOKEN: t.Final[t.Optional[str]] = environ.get("HOM_GITHUB_TOKEN")
 
     def __init__(self) -> None:

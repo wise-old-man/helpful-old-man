@@ -45,7 +45,7 @@ This syncs the bots application commands with Discord.
 The bot can expose a moderator-only slash command for creating issues:
 
 ```text
-/github create title:<title> body:<body> image:<optional attachment>
+/github create repository:<repo> title:<title> body:<body> image:<optional attachment>
 ```
 
 It also adds a message-only right-click action:
@@ -57,14 +57,18 @@ Apps > Create GitHub Issue
 That context-menu flow opens a modal with a prefilled title of
 `UserDisplayName - Suggestion` and a body that starts with the Discord message
 link, followed by the message content so a moderator can edit it before
-submitting. The modal also includes an optional attachment upload field.
+submitting. The modal starts with a required repository dropdown and also
+includes an optional attachment upload field.
 
 To enable it, set these optional values in `.env`:
 
 ```bash
-HOM_GITHUB_REPOSITORY=owner/repo
+HOM_GITHUB_REPOSITORIES=wise-old-man/wise-old-man,wise-old-man/wiseoldman-discord-bot,wise-old-man/wiseoldman-runelite-plugin,wise-old-man/helpful-old-man
 HOM_GITHUB_TOKEN=github_pat_xxx
 ```
+
+If `HOM_GITHUB_REPOSITORIES` is blank, the GitHub issue commands stay disabled and
+the bot will prompt you to configure it instead of falling back to defaults.
 
 For the safest simple setup, use a dedicated GitHub machine user or a fine-grained
 personal access token that only has access to the target repository and only has

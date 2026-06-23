@@ -13,7 +13,16 @@ from hom.config import Constants
 
 __all__ = ("GitHub",)
 
-HAS_MODAL_FILE_UPLOAD = hasattr(discord.ui, "FileUpload") and hasattr(discord.ui, "Label")
+HAS_MODAL_LABEL = hasattr(discord.ui, "Label")
+HAS_MODAL_FILE_UPLOAD = HAS_MODAL_LABEL and hasattr(discord.ui, "FileUpload")
+GITHUB_REPOSITORY_OPTIONS: t.Final[t.List[discord.SelectOption]] = [
+    discord.SelectOption(label=repository, value=repository)
+    for repository in Config.GITHUB_REPOSITORIES
+]
+GITHUB_REPOSITORY_CHOICES: t.Final[t.List[app_commands.Choice[str]]] = [
+    app_commands.Choice(name=repository, value=repository)
+    for repository in Config.GITHUB_REPOSITORIES
+]
 
 
 def _truncate(value: str, max_length: int) -> str:
@@ -116,6 +125,13 @@ class CreateGitHubIssueModal(discord.ui.Modal):
         self.cog = cog
         self.source_message = source_message
 
+        self.issue_repository: discord.ui.Select[t.Any] = discord.ui.Select(
+            placeholder="Select a repository...",
+            options=GITHUB_REPOSITORY_OPTIONS,
+            min_values=1,
+            max_values=1,
+            required=True,
+        )
         self.issue_title: discord.ui.TextInput[t.Any] = discord.ui.TextInput(
             label="Issue title",
             default=default_title,
@@ -131,6 +147,13 @@ class CreateGitHubIssueModal(discord.ui.Modal):
         )
         self.issue_attachment: t.Optional[t.Any] = None
 
+        self.add_item(
+            discord.ui.Label(
+                text="Repository",
+                description="Required repository for this issue.",
+                component=self.issue_repository,
+            )
+        )
         self.add_item(self.issue_title)
         self.add_item(self.issue_body)
 
@@ -162,6 +185,7 @@ class CreateGitHubIssueModal(discord.ui.Modal):
         )
         await self.cog.create_issue_from_values(
             interaction,
+            repository=self.issue_repository.values[0],
             title=self.issue_title.value,
             body=self.issue_body.value,
             image=(
@@ -187,18 +211,14 @@ class GitHub(commands.GroupCog, name="github"):
         )
 
     @staticmethod
-    def _get_repository_config() -> t.Optional[t.Tuple[str, str]]:
-        repository = Config.GITHUB_REPOSITORY
-        token = Config.GITHUB_TOKEN
-        if not repository or not token:
-            return None
-
-        return repository, token
+    def _is_allowed_repository(repository: str) -> bool:
+        return repository in Config.GITHUB_REPOSITORIES
 
     async def create_issue_from_values(
         self,
         interaction: discord.Interaction[commands.Bot],
         *,
+        repository: str,
         title: str,
         body: str,
         image: t.Optional[discord.Attachment] = None,
@@ -211,15 +231,23 @@ class GitHub(commands.GroupCog, name="github"):
             else:
                 await interaction.followup.send(message, ephemeral=True)
 
-        config = self._get_repository_config()
-        if config is None:
+        token = Config.GITHUB_TOKEN
+        if not token:
             await send_error(
-                "GitHub issue creation is not configured yet. Set `HOM_GITHUB_REPOSITORY` "
-                "and `HOM_GITHUB_TOKEN` first."
+                "GitHub issue creation is not configured yet. Set `HOM_GITHUB_TOKEN` first."
             )
             return
 
-        repository, token = config
+        if not Config.GITHUB_REPOSITORIES:
+            await send_error(
+                "GitHub issue creation is not configured yet. Set `HOM_GITHUB_REPOSITORIES` first."
+            )
+            return
+
+        if not self._is_allowed_repository(repository):
+            await send_error("Please select one of the configured GitHub repositories.")
+            return
+
         cleaned_title = title.strip()
         cleaned_body = body.strip()
 
@@ -324,10 +352,12 @@ class GitHub(commands.GroupCog, name="github"):
 
     @app_commands.guild_only()  # type: ignore[arg-type]
     @app_commands.describe(
+        repository="The GitHub repository to create the issue in.",
         title="Issue title.",
         body="Issue details.",
         image="Optional image attachment to include in the issue body.",
     )
+    @app_commands.choices(repository=GITHUB_REPOSITORY_CHOICES)
     @app_commands.command(
         name="create",
         description="[Mod]: Create a GitHub issue.",
@@ -335,6 +365,7 @@ class GitHub(commands.GroupCog, name="github"):
     async def create(
         self,
         interaction: discord.Interaction[commands.Bot],
+        repository: str,
         title: app_commands.Range[str, 1, 256],
         body: app_commands.Range[str, 1, 4000],
         image: t.Optional[discord.Attachment] = None,
@@ -352,6 +383,7 @@ class GitHub(commands.GroupCog, name="github"):
         )
         await self.create_issue_from_values(
             interaction,
+            repository=repository,
             title=title,
             body=body,
             image=image,
@@ -377,10 +409,24 @@ class GitHub(commands.GroupCog, name="github"):
             )
             return
 
-        if self._get_repository_config() is None:
+        if not Config.GITHUB_TOKEN:
             await interaction.response.send_message(
-                "GitHub issue creation is not configured yet. Set `HOM_GITHUB_REPOSITORY` "
-                "and `HOM_GITHUB_TOKEN` first.",
+                "GitHub issue creation is not configured yet. Set `HOM_GITHUB_TOKEN` first.",
+                ephemeral=True,
+            )
+            return
+
+        if not Config.GITHUB_REPOSITORIES:
+            await interaction.response.send_message(
+                "GitHub issue creation is not configured yet. Set `HOM_GITHUB_REPOSITORIES` first.",
+                ephemeral=True,
+            )
+            return
+
+        if not HAS_MODAL_LABEL or not HAS_MODAL_FILE_UPLOAD:
+            await interaction.response.send_message(
+                "This bot runtime needs `discord.py 2.7.0+` to show the repository dropdown and "
+                "attachment upload in the modal. Refresh dependencies and restart the bot first.",
                 ephemeral=True,
             )
             return
