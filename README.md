@@ -40,6 +40,40 @@ $ python -m hom
 Once the bot is running, make sure to run the `!sync` command in your dev server.
 This syncs the bots application commands with Discord.
 
+## GitHub Issue Command
+
+The bot can expose a moderator-only slash command for creating issues:
+
+```text
+/github create title:<title> body:<body> image:<optional attachment>
+```
+
+It also adds a message-only right-click action:
+
+```text
+Apps > Create GitHub Issue
+```
+
+That context-menu flow opens a modal with a prefilled title of
+`UserDisplayName - Suggestion` and a body that starts with the Discord message
+link, followed by the message content so a moderator can edit it before
+submitting. The modal also includes an optional attachment upload field.
+
+To enable it, set these optional values in `.env`:
+
+```bash
+HOM_GITHUB_REPOSITORY=owner/repo
+HOM_GITHUB_TOKEN=github_pat_xxx
+```
+
+For the safest simple setup, use a dedicated GitHub machine user or a fine-grained
+personal access token that only has access to the target repository and only has
+permission to create issues. Avoid using a broad personal token from a maintainer
+account.
+
+If an image attachment is supplied, the bot adds the Discord attachment URL to the
+issue body and renders it inline when GitHub can display it.
+
 ## Contributing with Docker
 
 You can also run the bot inside docker with hot reloading. It is still
