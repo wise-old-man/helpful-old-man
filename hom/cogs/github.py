@@ -72,10 +72,10 @@ def _build_issue_body(
     image: t.Optional[discord.Attachment],
     created_by_display_name: str,
 ) -> str:
-    issue_body = f"{body.strip()}\n\n---\nCreated by: {created_by_display_name}"
+    issue_body = body.strip()
 
     if image is None:
-        return issue_body
+        return f"{issue_body}\n\n---\nCreated by: {created_by_display_name}"
 
     attachment_lines = [
         "---",
@@ -85,7 +85,11 @@ def _build_issue_body(
     if image.content_type and image.content_type.startswith("image/"):
         attachment_lines.extend(("", f"![{image.filename}]({image.url})"))
 
-    return f"{issue_body}\n\n" + "\n".join(attachment_lines)
+    return (
+        f"{issue_body}\n\n"
+        + "\n".join(attachment_lines)
+        + f"\n\n---\nCreated by: {created_by_display_name}"
+    )
 
 
 def _get_error_message(response: requests.Response) -> str:
