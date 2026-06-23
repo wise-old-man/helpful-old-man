@@ -111,20 +111,20 @@ class CreateGitHubIssueModal(discord.ui.Modal):
         self.cog = cog
         self.source_message = source_message
 
-        self.issue_title = discord.ui.TextInput(
+        self.issue_title: discord.ui.TextInput[t.Any] = discord.ui.TextInput(
             label="Issue title",
             default=default_title,
             min_length=1,
             max_length=256,
         )
-        self.issue_body = discord.ui.TextInput(
+        self.issue_body: discord.ui.TextInput[t.Any] = discord.ui.TextInput(
             label="Issue body",
             default=default_body,
             style=discord.TextStyle.paragraph,
             min_length=1,
             max_length=4000,
         )
-        self.issue_attachment: t.Optional[discord.ui.Item[t.Any]] = None
+        self.issue_attachment: t.Optional[t.Any] = None
 
         self.add_item(self.issue_title)
         self.add_item(self.issue_body)
