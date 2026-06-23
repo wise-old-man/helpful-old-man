@@ -81,18 +81,23 @@ def _build_issue_body(
 
 def _get_error_message(response: requests.Response) -> str:
     try:
-        payload = response.json()
+        payload_obj = response.json()
     except ValueError:
         text = response.text.strip()
         return text or f"GitHub returned HTTP {response.status_code}."
 
+    if not isinstance(payload_obj, dict):
+        return f"GitHub returned HTTP {response.status_code}."
+
+    payload: t.Mapping[str, t.Any] = payload_obj
     message = payload.get("message")
     if isinstance(message, str) and message.strip():
         return message
 
     errors = payload.get("errors")
     if isinstance(errors, list) and errors:
-        details = ", ".join(str(error) for error in errors[:3])
+        typed_errors = t.cast(t.Sequence[t.Any], errors)
+        details = ", ".join(str(error) for error in typed_errors[:3])
         return f"GitHub returned validation errors: {details}"
 
     return f"GitHub returned HTTP {response.status_code}."
