@@ -86,13 +86,13 @@ class Support(discord.ui.View):
         assert isinstance(self, Support)
         instructions = (
             "If you are interested in claiming or signing up for patreon benefits, check out "
-            f"<#{Config.HOM_PATREON_CHANNEL}> for more information.\n\nIf you've already signed up, "
+            f"<#{Config.PATREON_CHANNEL}> for more information.\n\nIf you've already signed up, "
             "**thanks so much for your support**! It means a lot to us that you enjoy using "
             f"Wise Old Man. Feel free to ask any questions you have here.\n\n{Constants.FOOTER}"
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(interaction, instructions, button.label)
         else:
@@ -115,7 +115,7 @@ class Support(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(interaction, instructions, button.label)
         else:
@@ -132,7 +132,7 @@ class Support(discord.ui.View):
         assert isinstance(self, Support)
         await interaction.response.defer()
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(interaction, instructions, f"Other")
         else:
@@ -187,7 +187,7 @@ class SupportGroup(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction,
@@ -229,7 +229,7 @@ class SupportGroup(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction,
@@ -267,7 +267,7 @@ class SupportGroup(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction,
@@ -298,7 +298,7 @@ class SupportGroup(discord.ui.View):
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction, instructions, f"Groups {Constants.ARROW} {button.label}"
@@ -334,7 +334,7 @@ class SupportCompetition(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction,
@@ -370,7 +370,7 @@ class SupportCompetition(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction,
@@ -399,7 +399,7 @@ class SupportCompetition(discord.ui.View):
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction, instructions, f"Competitions {Constants.ARROW} {button.label}"
@@ -438,7 +438,7 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction, instructions, f"Players {Constants.ARROW} {button.label}"
@@ -467,7 +467,7 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction,
@@ -504,7 +504,7 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction,
@@ -540,7 +540,7 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction,
@@ -576,7 +576,7 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction,
@@ -611,7 +611,7 @@ class SupportPlayer(discord.ui.View):
         )
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction,
@@ -640,7 +640,7 @@ class SupportPlayer(discord.ui.View):
         instructions = f"Explain what you require assistance with below.\n\n{Constants.FOOTER}"
 
         await interaction.response.defer()
-        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
         if interaction.channel == channel:
             await utils.create_ticket_for_user(
                 interaction, instructions, f"Player {Constants.ARROW} {button.label}"
@@ -692,7 +692,7 @@ class SupportMessageCloseChannel(discord.ui.View):
         assert isinstance(interaction.channel, discord.channel.TextChannel)
         assert isinstance(interaction.user, discord.Member)
 
-        if not any(r.id == Config.HOM_MOD_ROLE for r in interaction.user.roles):
+        if not any(r.id == Config.MOD_ROLE for r in interaction.user.roles):
             await interaction.followup.send(
                 ephemeral=True,
                 content="You do not have the required permissions to delete the channel.",

@@ -104,7 +104,7 @@ class GroupIdModal(discord.ui.Modal, title="Group Lookup"):
             embed = discord.Embed(
                 title="Group Lookup Failed",
                 colour=discord.Colour.red(),
-                url=f"{Config.HOM_BASE_WEBSITE_URL}/groups/{group_id}",
+                url=f"{Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups/{group_id}",
             )
             embed.add_field(
                 name="Not Found",
@@ -117,7 +117,7 @@ class GroupIdModal(discord.ui.Modal, title="Group Lookup"):
         embed = discord.Embed(
             title="Group Lookup",
             colour=discord.Colour.blue(),
-            url=f"{Config.HOM_BASE_WEBSITE_URL}/groups/{group_id}",
+            url=f"{Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups/{group_id}",
         )
         embed.add_field(name="ID", value=str(data["id"]))
         embed.add_field(name="Name", value=str(data["name"]))
@@ -146,7 +146,7 @@ class GroupIdModal(discord.ui.Modal, title="Group Lookup"):
             name="\u200b",
             value=(
                 "-# Not your group? You can find your group id on the "
-                f"[website]({Config.HOM_BASE_WEBSITE_URL}/groups) just below the group "
+                f"[website]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups) just below the group "
                 "name and description."
             ),
             inline=False,
@@ -182,7 +182,7 @@ class PlayerGroupModal(discord.ui.Modal, title="Player Lookup"):
             embed = discord.Embed(
                 title="Group Lookup Failed",
                 colour=discord.Colour.red(),
-                url=f"{Config.HOM_BASE_WEBSITE_URL}/groups/{group_id}",
+                url=f"{Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups/{group_id}",
             )
             embed.add_field(
                 name="Not Found",
@@ -197,13 +197,16 @@ class PlayerGroupModal(discord.ui.Modal, title="Player Lookup"):
             embed = discord.Embed(
                 title="Player Group Lookup",
                 colour=discord.Colour.green(),
-                url=f"{Config.HOM_BASE_WEBSITE_URL}/players/{rsn}",
+                url=f"{Config.DISCORD_BOT_BASE_WEBSITE_URL}/players/{rsn}",
             )
             embed.add_field(name="Player", value=rsn)
             embed.add_field(name="Group", value=str(data["name"]))
             embed.add_field(
                 name="Group ID",
-                value=(f"[{data['id']}]" f"({Config.HOM_BASE_WEBSITE_URL}/groups/{data['id']})"),
+                value=(
+                    f"[{data['id']}]"
+                    f"({Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups/{data['id']})"
+                ),
             )
             embed.set_footer(text="The buttons below are for admin use only.")
 
@@ -220,7 +223,7 @@ class PlayerGroupModal(discord.ui.Modal, title="Player Lookup"):
         embed = discord.Embed(
             title="Player Lookup",
             colour=discord.Colour.red(),
-            url=f"{Config.HOM_BASE_WEBSITE_URL}/players/{rsn}",
+            url=f"{Config.DISCORD_BOT_BASE_WEBSITE_URL}/players/{rsn}",
         )
         embed.add_field(
             name=f"{rsn} not found in group",
@@ -251,7 +254,7 @@ class ApproveDenyPlayerRemoveRequest(discord.ui.View):
         assert isinstance(interaction.user, discord.Member)
         await interaction.response.defer(ephemeral=True)
 
-        if not any(role.id == Config.HOM_MOD_ROLE for role in interaction.user.roles):
+        if not any(role.id == Config.MOD_ROLE for role in interaction.user.roles):
             await interaction.followup.send(
                 f"{Constants.DENIED} You do not have the required permissions to use this.",
                 ephemeral=True,
@@ -303,7 +306,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
         assert interaction.guild is not None
         await interaction.response.defer(ephemeral=True)
 
-        if not any(role.id == Config.HOM_MOD_ROLE for role in interaction.user.roles):
+        if not any(role.id == Config.MOD_ROLE for role in interaction.user.roles):
             await interaction.followup.send(
                 await _build_group_lookup_permission_message(interaction),
                 ephemeral=True,
@@ -335,7 +338,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
             )
             return
 
-        if role := utils.get_role(interaction.guild, Config.HOM_GROUP_LEADER_ROLE):
+        if role := utils.get_role(interaction.guild, Config.GROUP_LEADER_ROLE):
             await ticket_user.add_roles(role)
 
         data = await interaction.client.wom.get_group(group_id)
@@ -351,7 +354,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
         embed.add_field(name="Group Name", value=str(data["name"]))
         await utils.send_log_message(
             interaction,
-            f"Group: [{group_id}]({Config.HOM_BASE_WEBSITE_URL}/groups/{group_id})\n"
+            f"Group: [{group_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups/{group_id})\n"
             f"Verified by: {ticket_user.mention}, `{ticket_user.id}`, `{ticket_user.name}`",
             title="Verified Group",
             mod=interaction.user,
@@ -373,7 +376,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
         assert isinstance(interaction.user, discord.Member)
         await interaction.response.defer(ephemeral=True)
 
-        if not any(role.id == Config.HOM_MOD_ROLE for role in interaction.user.roles):
+        if not any(role.id == Config.MOD_ROLE for role in interaction.user.roles):
             await interaction.followup.send(
                 await _build_group_lookup_permission_message(interaction),
                 ephemeral=True,
@@ -413,7 +416,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
 
         await ticket_user.send(
             f"Your verification code for group [{group_id}]"
-            f"({Config.HOM_BASE_WEBSITE_URL}/groups/{group_id}) has been reset.\n"
+            f"({Config.DISCORD_BOT_BASE_WEBSITE_URL}/groups/{group_id}) has been reset.\n"
             f"```{new_code}```"
             "Keep this code secret - it can be used to edit or delete your group."
         )
