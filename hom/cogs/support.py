@@ -39,7 +39,7 @@ class Support(commands.GroupCog, name="support"):
             )
         )
 
-    @commands.has_role(Config.MOD_ROLE)
+    @commands.has_role(Config.HOM_MOD_ROLE)
     @commands.command(name="sync")
     async def sync(self, ctx: commands.Context[commands.Bot]) -> None:
         await self.bot.tree.sync()
@@ -83,7 +83,7 @@ class Support(commands.GroupCog, name="support"):
         if not interaction.channel.category:
             return False
 
-        category_match = interaction.channel.category.id == Config.TICKET_CATEGORY
+        category_match = interaction.channel.category.id == Config.HOM_TICKET_CATEGORY
         if invert:
             category_match = not category_match
 
@@ -153,7 +153,7 @@ class Support(commands.GroupCog, name="support"):
         ):
             return None
 
-        channel = utils.get_channel(interaction.guild, Config.SUPPORT_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.HOM_SUPPORT_CHANNEL)
         if not channel:
             await interaction.followup.send("Couldn't find support channel, this is a bug.")
             return None

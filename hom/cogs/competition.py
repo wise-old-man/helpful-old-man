@@ -31,7 +31,7 @@ class Competition(commands.GroupCog, name="competition"):
         if not username:
             return []
 
-        url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/competitions"
+        url = f"{Config.HOM_BASE_API_URL}/players/{username}/competitions"
 
         response = requests.get(url=url, headers=Constants.HEADERS)
 
@@ -72,7 +72,7 @@ class Competition(commands.GroupCog, name="competition"):
         if not username:
             return []
 
-        url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/groups"
+        url = f"{Config.HOM_BASE_API_URL}/players/{username}/groups"
 
         response = requests.get(
             url=url,
@@ -157,9 +157,11 @@ class Competition(commands.GroupCog, name="competition"):
         skipped_competitions: List[str] = []
 
         if competition_id is not None:
-            competition_link = f"[{competition_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/competitions/{competition_id})"
+            competition_link = (
+                f"[{competition_id}]({Config.HOM_BASE_WEBSITE_URL}/competitions/{competition_id})"
+            )
             response = requests.delete(
-                url=f"{Config.DISCORD_BOT_BASE_API_URL}/competitions/{competition_id}/participants",
+                url=f"{Config.HOM_BASE_API_URL}/competitions/{competition_id}/participants",
                 json={
                     "participants": [username],
                     "adminPassword": Config.SHARED_ADMIN_PASSWORD,
@@ -179,7 +181,7 @@ class Competition(commands.GroupCog, name="competition"):
             else:
                 successful_competitions.append(competition_link)
         else:
-            url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/competitions"
+            url = f"{Config.HOM_BASE_API_URL}/players/{username}/competitions"
             response = requests.get(
                 url=url,
                 headers=Constants.HEADERS,
@@ -194,12 +196,12 @@ class Competition(commands.GroupCog, name="competition"):
             for comp in response.json():
                 comp_id = comp["competitionId"]
                 competition_link = (
-                    f"[{comp_id}]({Config.DISCORD_BOT_BASE_WEBSITE_URL}/competitions/{comp_id})"
+                    f"[{comp_id}]({Config.HOM_BASE_WEBSITE_URL}/competitions/{comp_id})"
                 )
 
                 if group_id == comp["competition"]["groupId"]:
                     response = requests.delete(
-                        url=f"{Config.DISCORD_BOT_BASE_API_URL}/competitions/{comp_id}/participants",
+                        url=f"{Config.HOM_BASE_API_URL}/competitions/{comp_id}/participants",
                         json={
                             "participants": [username],
                             "adminPassword": Config.SHARED_ADMIN_PASSWORD,

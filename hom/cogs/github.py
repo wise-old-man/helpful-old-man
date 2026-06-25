@@ -20,11 +20,11 @@ HAS_MODAL_LABEL = hasattr(discord.ui, "Label")
 HAS_MODAL_FILE_UPLOAD = HAS_MODAL_LABEL and hasattr(discord.ui, "FileUpload")
 GITHUB_REPOSITORY_OPTIONS: t.Final[t.List[discord.SelectOption]] = [
     discord.SelectOption(label=repository, value=repository)
-    for repository in Config.GITHUB_REPOSITORIES
+    for repository in Config.HOM_GITHUB_REPOSITORIES
 ]
 GITHUB_REPOSITORY_CHOICES: t.Final[t.List[app_commands.Choice[str]]] = [
     app_commands.Choice(name=repository, value=repository)
-    for repository in Config.GITHUB_REPOSITORIES
+    for repository in Config.HOM_GITHUB_REPOSITORIES
 ]
 GITHUB_API_VERSION: t.Final[str] = "2022-11-28"
 GITHUB_APP_CONFIGURATION_MESSAGE: t.Final[str] = (
@@ -40,7 +40,7 @@ class GitHubAppAuthError(RuntimeError):
 
 
 def _load_github_private_key() -> str:
-    raw_value = Config.GITHUB_PRIVATE_KEY
+    raw_value = Config.HOM_GITHUB_PRIVATE_KEY
     if raw_value:
         stripped = raw_value.strip()
         if stripped:
@@ -50,14 +50,14 @@ def _load_github_private_key() -> str:
 
 
 def _get_app_jwt() -> str:
-    if not Config.GITHUB_APP_ID:
+    if not Config.HOM_GITHUB_APP_ID:
         raise GitHubAppAuthError(GITHUB_APP_CONFIGURATION_MESSAGE)
 
     now = int(time.time())
     payload = {
         "iat": now - 60,
         "exp": now + 600,
-        "iss": Config.GITHUB_APP_ID,
+        "iss": Config.HOM_GITHUB_APP_ID,
     }
 
     try:
@@ -187,7 +187,7 @@ def _truncate(value: str, max_length: int) -> str:
 
 def _is_mod(interaction: discord.Interaction[t.Any]) -> bool:
     return isinstance(interaction.user, discord.Member) and any(
-        role.id == Config.MOD_ROLE for role in interaction.user.roles
+        role.id == Config.HOM_MOD_ROLE for role in interaction.user.roles
     )
 
 
@@ -368,7 +368,7 @@ class GitHub(commands.GroupCog, name="github"):
 
     @staticmethod
     def _is_allowed_repository(repository: str) -> bool:
-        return repository in Config.GITHUB_REPOSITORIES
+        return repository in Config.HOM_GITHUB_REPOSITORIES
 
     async def create_issue_from_values(
         self,
@@ -387,7 +387,7 @@ class GitHub(commands.GroupCog, name="github"):
             else:
                 await interaction.followup.send(message, ephemeral=True)
 
-        if not Config.GITHUB_REPOSITORIES:
+        if not Config.HOM_GITHUB_REPOSITORIES:
             await send_error(
                 "GitHub issue creation is not configured yet. Set `HOM_GITHUB_REPOSITORIES` first."
             )
@@ -573,7 +573,7 @@ class GitHub(commands.GroupCog, name="github"):
             )
             return
 
-        if not Config.GITHUB_REPOSITORIES:
+        if not Config.HOM_GITHUB_REPOSITORIES:
             await interaction.response.send_message(
                 "GitHub issue creation is not configured yet. Set `HOM_GITHUB_REPOSITORIES` first.",
                 ephemeral=True,

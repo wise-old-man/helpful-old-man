@@ -89,7 +89,7 @@ compatibility with your linter.
 Still make sure to copy the `.env` file and that your discord bot application
 has proper perms in the developer dashboard.
 
-If `DISCORD_BOT_BASE_API_URL` is set to `http://localhost:5000`, the bot will
+If `HOM_BASE_API_URL` is set to `http://localhost:5000`, the bot will
 automatically use `host.docker.internal` when it is running inside Docker so it
 can still reach an API running on your host machine.
 
