@@ -1,5 +1,6 @@
 __pycache__
 .venv
 .env
+.secrets
 .nox
 .mypy_cache

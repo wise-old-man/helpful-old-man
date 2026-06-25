@@ -65,7 +65,7 @@ To enable it, set these optional values in `.env`:
 ```bash
 HOM_GITHUB_REPOSITORIES=wise-old-man/wise-old-man,wise-old-man/wiseoldman-discord-bot,wise-old-man/wiseoldman-runelite-plugin,wise-old-man/helpful-old-man
 HOM_GITHUB_APP_ID=1234567
-HOM_GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+HOM_GITHUB_PRIVATE_KEY_PATH=.secrets/hom-github-app.pem
 ```
 
 If `HOM_GITHUB_REPOSITORIES` is blank, the GitHub issue commands stay disabled and
@@ -75,7 +75,8 @@ Create a private GitHub App for the repos listed in `HOM_GITHUB_REPOSITORIES`,
 disable webhooks, grant repository `Issues: Read and write`, generate a private
 key, and install the app on the target repos. The bot resolves the installation
 automatically per repository, so you do not need to store an installation ID in
-`.env`.
+`.env`. Keep the PEM file out of git and mount it into Docker at runtime instead
+of copying it into the image.
 
 If an image attachment is supplied, the bot adds the Discord attachment URL to the
 issue body and renders it inline when GitHub can display it.
@@ -92,6 +93,11 @@ has proper perms in the developer dashboard.
 If `HOM_BASE_API_URL` is set to `http://localhost:5000`, the bot will
 automatically use `host.docker.internal` when it is running inside Docker so it
 can still reach an API running on your host machine.
+
+For the GitHub App private key, keep the file in `.secrets/` locally and mount
+that directory into the container. In production, mount the PEM from the host or
+your secret manager to the same in-container path referenced by
+`HOM_GITHUB_PRIVATE_KEY_PATH`.
 
 ```sh
 $ docker compose up

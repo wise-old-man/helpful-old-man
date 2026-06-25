@@ -63,7 +63,9 @@ class Config:
     HOM_API_KEY: t.Final[str] = environ["HOM_API_KEY"]
     HOM_GITHUB_REPOSITORIES: t.Final[t.Tuple[str, ...]] = _csv("HOM_GITHUB_REPOSITORIES")
     HOM_GITHUB_APP_ID: t.Final[t.Optional[str]] = environ.get("HOM_GITHUB_APP_ID")
-    HOM_GITHUB_PRIVATE_KEY: t.Final[t.Optional[str]] = environ.get("HOM_GITHUB_PRIVATE_KEY")
+    HOM_GITHUB_PRIVATE_KEY_PATH: t.Final[t.Optional[str]] = environ.get(
+        "HOM_GITHUB_PRIVATE_KEY_PATH"
+    )
 
     def __init__(self) -> None:
         raise RuntimeError("Config should not be instantiated.")

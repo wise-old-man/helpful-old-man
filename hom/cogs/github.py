@@ -1,6 +1,7 @@
 import time
 import typing as t
 from datetime import datetime
+from pathlib import Path
 
 import discord
 import jwt
@@ -29,7 +30,7 @@ GITHUB_REPOSITORY_CHOICES: t.Final[t.List[app_commands.Choice[str]]] = [
 GITHUB_API_VERSION: t.Final[str] = "2022-11-28"
 GITHUB_APP_CONFIGURATION_MESSAGE: t.Final[str] = (
     "GitHub issue creation is not configured yet. Set `HOM_GITHUB_APP_ID` and "
-    "`HOM_GITHUB_PRIVATE_KEY` first."
+    "`HOM_GITHUB_PRIVATE_KEY_PATH` first."
 )
 _INSTALLATION_IDS_BY_REPOSITORY: t.Dict[str, int] = {}
 _INSTALLATION_TOKENS_BY_ID: t.Dict[int, t.Tuple[str, float]] = {}
@@ -40,11 +41,24 @@ class GitHubAppAuthError(RuntimeError):
 
 
 def _load_github_private_key() -> str:
-    raw_value = Config.HOM_GITHUB_PRIVATE_KEY
-    if raw_value:
-        stripped = raw_value.strip()
-        if stripped:
-            return stripped.replace("\\n", "\n")
+    path_value = Config.HOM_GITHUB_PRIVATE_KEY_PATH
+    if path_value:
+        try:
+            private_key = Path(path_value).expanduser().read_text(encoding="utf-8").strip()
+        except OSError as exc:
+            raise GitHubAppAuthError(
+                "GitHub App authentication could not read the configured private key file "
+                f"at `{path_value}`.\n"
+                f"```{str(exc)[:1800]}```"
+            ) from exc
+
+        if not private_key:
+            raise GitHubAppAuthError(
+                "GitHub App authentication found an empty private key file at "
+                f"`{path_value}`."
+            )
+
+        return private_key
 
     raise GitHubAppAuthError(GITHUB_APP_CONFIGURATION_MESSAGE)
 
