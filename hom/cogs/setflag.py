@@ -27,7 +27,7 @@ class SetFlag(commands.Cog, name="setflag"):
         await interaction.response.defer()
         assert interaction.guild
 
-        channel = utils.get_channel(interaction.guild, Config.HOM_FLAG_CHANNEL)
+        channel = utils.get_channel(interaction.guild, Config.FLAG_CHANNEL)
         if not channel:
             await interaction.followup.send("Couldn't find change-flag channel, this is a bug.")
         elif interaction.channel == channel:

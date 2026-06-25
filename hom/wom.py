@@ -12,7 +12,7 @@ from hom.config import Constants
 class WomClient:
     def __init__(self, session: aiohttp.ClientSession) -> None:
         self._session = session
-        self._base = Config.HOM_BASE_API_URL
+        self._base = Config.DISCORD_BOT_BASE_API_URL
 
     async def get_group(self, group_id: Union[str, int]) -> Optional[Dict[str, Any]]:
         async with self._session.get(
