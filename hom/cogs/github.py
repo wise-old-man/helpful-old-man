@@ -54,8 +54,7 @@ def _load_github_private_key() -> str:
 
         if not private_key:
             raise GitHubAppAuthError(
-                "GitHub App authentication found an empty private key file at "
-                f"`{path_value}`."
+                "GitHub App authentication found an empty private key file at " f"`{path_value}`."
             )
 
         return private_key
