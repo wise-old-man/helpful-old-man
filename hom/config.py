@@ -62,7 +62,8 @@ class Config:
     DISCORD_BOT_BASE_WEBSITE_URL: t.Final[str] = environ["HOM_BASE_WEBSITE_URL"]
     HOM_API_KEY: t.Final[str] = environ["HOM_API_KEY"]
     GITHUB_REPOSITORIES: t.Final[t.Tuple[str, ...]] = _csv("HOM_GITHUB_REPOSITORIES")
-    GITHUB_TOKEN: t.Final[t.Optional[str]] = environ.get("HOM_GITHUB_TOKEN")
+    GITHUB_APP_ID: t.Final[t.Optional[str]] = environ.get("HOM_GITHUB_APP_ID")
+    GITHUB_PRIVATE_KEY: t.Final[t.Optional[str]] = environ.get("HOM_GITHUB_PRIVATE_KEY")
 
     def __init__(self) -> None:
         raise RuntimeError("Config should not be instantiated.")

@@ -1,6 +1,9 @@
+import time
 import typing as t
+from datetime import datetime
 
 import discord
+import jwt
 import requests
 from discord import AppCommandType
 from discord import app_commands
@@ -23,6 +26,155 @@ GITHUB_REPOSITORY_CHOICES: t.Final[t.List[app_commands.Choice[str]]] = [
     app_commands.Choice(name=repository, value=repository)
     for repository in Config.GITHUB_REPOSITORIES
 ]
+GITHUB_API_VERSION: t.Final[str] = "2022-11-28"
+GITHUB_APP_CONFIGURATION_MESSAGE: t.Final[str] = (
+    "GitHub issue creation is not configured yet. Set `HOM_GITHUB_APP_ID` and "
+    "`HOM_GITHUB_PRIVATE_KEY` first."
+)
+_INSTALLATION_IDS_BY_REPOSITORY: t.Dict[str, int] = {}
+_INSTALLATION_TOKENS_BY_ID: t.Dict[int, t.Tuple[str, float]] = {}
+
+
+class GitHubAppAuthError(RuntimeError):
+    pass
+
+
+def _load_github_private_key() -> str:
+    raw_value = Config.GITHUB_PRIVATE_KEY
+    if raw_value:
+        stripped = raw_value.strip()
+        if stripped:
+            return stripped.replace("\\n", "\n")
+
+    raise GitHubAppAuthError(GITHUB_APP_CONFIGURATION_MESSAGE)
+
+
+def _get_app_jwt() -> str:
+    if not Config.GITHUB_APP_ID:
+        raise GitHubAppAuthError(GITHUB_APP_CONFIGURATION_MESSAGE)
+
+    now = int(time.time())
+    payload = {
+        "iat": now - 60,
+        "exp": now + 600,
+        "iss": Config.GITHUB_APP_ID,
+    }
+
+    try:
+        return jwt.encode(
+            payload,
+            _load_github_private_key(),
+            algorithm="RS256",
+        )
+    except Exception as exc:
+        raise GitHubAppAuthError(
+            "GitHub App authentication could not generate a JWT from the configured "
+            "private key.\n"
+            f"```{str(exc)[:1800]}```"
+        ) from exc
+
+
+def _parse_github_timestamp(value: str) -> t.Optional[float]:
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return None
+
+
+def _get_installation_id(repository: str, app_jwt: str) -> int:
+    cached_installation_id = _INSTALLATION_IDS_BY_REPOSITORY.get(repository)
+    if cached_installation_id is not None:
+        return cached_installation_id
+
+    try:
+        response = requests.get(
+            url=f"https://api.github.com/repos/{repository}/installation",
+            headers={
+                "Accept": "application/vnd.github+json",
+                "Authorization": f"Bearer {app_jwt}",
+                "User-Agent": "Helpful Old Man Discord Bot",
+                "X-GitHub-Api-Version": GITHUB_API_VERSION,
+            },
+            timeout=15,
+        )
+    except requests.RequestException as exc:
+        raise GitHubAppAuthError(
+            "GitHub App authentication could not reach GitHub while looking up the "
+            "repository installation.\n"
+            f"```{str(exc)[:1800]}```"
+        ) from exc
+
+    if response.status_code != 200:
+        error_message = _get_error_message(response)
+        raise GitHubAppAuthError(
+            "Could not find a GitHub App installation for the selected repository. "
+            "Make sure the app is installed on that repository.\n"
+            f"```{error_message[:1800]}```"
+        )
+
+    payload_obj = response.json()
+    if not isinstance(payload_obj, dict):
+        raise GitHubAppAuthError("GitHub returned an unexpected installation lookup response.")
+
+    installation_payload = t.cast(t.Dict[str, t.Any], payload_obj)
+    installation_id = installation_payload.get("id")
+    if not isinstance(installation_id, int):
+        raise GitHubAppAuthError("GitHub returned an unexpected installation lookup response.")
+
+    _INSTALLATION_IDS_BY_REPOSITORY[repository] = installation_id
+    return installation_id
+
+
+def _get_installation_token(repository: str) -> str:
+    app_jwt = _get_app_jwt()
+    installation_id = _get_installation_id(repository, app_jwt)
+
+    cached_token = _INSTALLATION_TOKENS_BY_ID.get(installation_id)
+    if cached_token is not None:
+        cached_token_value, cached_expiry_timestamp = cached_token
+        if time.time() < cached_expiry_timestamp - 60:
+            return cached_token_value
+
+    try:
+        response = requests.post(
+            url=f"https://api.github.com/app/installations/{installation_id}/access_tokens",
+            headers={
+                "Accept": "application/vnd.github+json",
+                "Authorization": f"Bearer {app_jwt}",
+                "User-Agent": "Helpful Old Man Discord Bot",
+                "X-GitHub-Api-Version": GITHUB_API_VERSION,
+            },
+            timeout=15,
+        )
+    except requests.RequestException as exc:
+        raise GitHubAppAuthError(
+            "GitHub App authentication could not reach GitHub while requesting an "
+            "installation token.\n"
+            f"```{str(exc)[:1800]}```"
+        ) from exc
+
+    if response.status_code != 201:
+        error_message = _get_error_message(response)
+        raise GitHubAppAuthError(
+            "GitHub rejected the installation token request.\n" f"```{error_message[:1800]}```"
+        )
+
+    payload_obj = response.json()
+    if not isinstance(payload_obj, dict):
+        raise GitHubAppAuthError("GitHub returned an unexpected installation token response.")
+
+    token_payload = t.cast(t.Dict[str, t.Any], payload_obj)
+    token_value = token_payload.get("token")
+    expires_at_value = token_payload.get("expires_at")
+    if not isinstance(token_value, str) or not isinstance(expires_at_value, str):
+        raise GitHubAppAuthError("GitHub returned an unexpected installation token response.")
+
+    expiry_timestamp = _parse_github_timestamp(expires_at_value)
+    if expiry_timestamp is None:
+        expiry_timestamp = time.time() + 3600
+
+    _INSTALLATION_TOKENS_BY_ID[installation_id] = (token_value, expiry_timestamp)
+    return token_value
 
 
 def _truncate(value: str, max_length: int) -> str:
@@ -235,13 +387,6 @@ class GitHub(commands.GroupCog, name="github"):
             else:
                 await interaction.followup.send(message, ephemeral=True)
 
-        token = Config.GITHUB_TOKEN
-        if not token:
-            await send_error(
-                "GitHub issue creation is not configured yet. Set `HOM_GITHUB_TOKEN` first."
-            )
-            return
-
         if not Config.GITHUB_REPOSITORIES:
             await send_error(
                 "GitHub issue creation is not configured yet. Set `HOM_GITHUB_REPOSITORIES` first."
@@ -260,13 +405,19 @@ class GitHub(commands.GroupCog, name="github"):
             return
 
         try:
+            token = _get_installation_token(repository)
+        except GitHubAppAuthError as exc:
+            await send_error(str(exc))
+            return
+
+        try:
             response = requests.post(
                 url=f"https://api.github.com/repos/{repository}/issues",
                 headers={
                     "Accept": "application/vnd.github+json",
                     "Authorization": f"Bearer {token}",
                     "User-Agent": "Helpful Old Man Discord Bot",
-                    "X-GitHub-Api-Version": "2022-11-28",
+                    "X-GitHub-Api-Version": GITHUB_API_VERSION,
                 },
                 json={
                     "title": cleaned_title,
@@ -413,9 +564,11 @@ class GitHub(commands.GroupCog, name="github"):
             )
             return
 
-        if not Config.GITHUB_TOKEN:
+        try:
+            _get_app_jwt()
+        except GitHubAppAuthError as exc:
             await interaction.response.send_message(
-                "GitHub issue creation is not configured yet. Set `HOM_GITHUB_TOKEN` first.",
+                str(exc),
                 ephemeral=True,
             )
             return
