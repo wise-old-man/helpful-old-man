@@ -28,6 +28,7 @@ GITHUB_REPOSITORY_CHOICES: t.Final[t.List[app_commands.Choice[str]]] = [
     for repository in Config.HOM_GITHUB_REPOSITORIES
 ]
 GITHUB_API_VERSION: t.Final[str] = "2022-11-28"
+DISCORD_INVITE_URL: t.Final[str] = "https://wiseoldman.net/discord"
 GITHUB_APP_CONFIGURATION_MESSAGE: t.Final[str] = (
     "GitHub issue creation is not configured yet. Set `HOM_GITHUB_APP_ID` and "
     "`HOM_GITHUB_PRIVATE_KEY_PATH` first."
@@ -238,9 +239,10 @@ def _build_issue_body(
     created_by_display_name: str,
 ) -> str:
     issue_body = body.strip()
+    footer = _build_created_by_footer(created_by_display_name)
 
     if image is None:
-        return f"{issue_body}\n\n---\nCreated by: {created_by_display_name}"
+        return f"{issue_body}\n\n---\n{footer}"
 
     attachment_lines = [
         "---",
@@ -250,11 +252,11 @@ def _build_issue_body(
     if image.content_type and image.content_type.startswith("image/"):
         attachment_lines.extend(("", f"![{image.filename}]({image.url})"))
 
-    return (
-        f"{issue_body}\n\n"
-        + "\n".join(attachment_lines)
-        + f"\n\n---\nCreated by: {created_by_display_name}"
-    )
+    return f"{issue_body}\n\n" + "\n".join(attachment_lines) + f"\n\n---\n{footer}"
+
+
+def _build_created_by_footer(created_by_display_name: str) -> str:
+    return f"Created by **{created_by_display_name}** via [Discord]({DISCORD_INVITE_URL})"
 
 
 def _get_error_message(response: requests.Response) -> str:
