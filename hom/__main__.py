@@ -12,4 +12,4 @@ if __name__ == "__main__":
         uvloop.install()
 
     bot = Bot()
-    bot.run(Config.DISCORD_TOKEN)
+    bot.run(Config.HOM_DISCORD_TOKEN)

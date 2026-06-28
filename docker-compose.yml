@@ -8,6 +8,7 @@ services:
       - ./.env
     volumes:
       - ./hom:/wise-old-man/hom-bot/hom
+      - ./.secrets:/wise-old-man/hom-bot/.secrets:ro
       - hom-bot-venv:/wise-old-man/hom-bot/.venv
     command: nodemon -e py -w hom -x ".venv/bin/python3 -m hom"
 

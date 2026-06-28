@@ -64,7 +64,7 @@ async def archive_channel_messages(channel: discord.TextChannel) -> str:
 def build_support_embed(guild: discord.Guild) -> discord.Embed:
     questions_message = ""
 
-    if questions_channel := get_channel(guild, Config.QUESTIONS_CHANNEL):
+    if questions_channel := get_channel(guild, Config.HOM_QUESTIONS_CHANNEL):
         questions_message = (
             "\n\nIf you'd like to ask a quick question, you may do so in the "
             f"{questions_channel.mention} channel."
@@ -117,11 +117,11 @@ async def create_ticket_for_user(
         return existing_ticket_channel
 
     channel_name = f"help-{interaction.user.display_name[:15]}"
-    tickets_category = get_category(interaction.guild, Config.TICKET_CATEGORY)
+    tickets_category = get_category(interaction.guild, Config.HOM_TICKET_CATEGORY)
     bot_member = interaction.guild.me
-    if not (mod_role := get_role(interaction.guild, Config.MOD_ROLE)):
+    if not (mod_role := get_role(interaction.guild, Config.HOM_MOD_ROLE)):
         await interaction.followup.send("The moderator role is missing from the server.")
-        raise RuntimeError(f"Couldn't find mod role with ID: {Config.MOD_ROLE}")
+        raise RuntimeError(f"Couldn't find mod role with ID: {Config.HOM_MOD_ROLE}")
 
     new_text_channel = await interaction.guild.create_text_channel(
         name=channel_name,
@@ -245,7 +245,7 @@ async def get_user_by_original_message(
 def get_user_ticket_channel(
     guild: discord.Guild, user: t.Union[discord.User, discord.Member]
 ) -> t.Optional[discord.TextChannel]:
-    if category := get_category(guild, Config.TICKET_CATEGORY):
+    if category := get_category(guild, Config.HOM_TICKET_CATEGORY):
         for channel in category.channels:
             user_perms = channel.overwrites_for(user)
 
@@ -313,7 +313,7 @@ async def update_ticket_for_user(
 async def mod_check(interaction: discord.Interaction[commands.Bot]) -> bool:
     assert isinstance(interaction.user, discord.Member)
 
-    if not any(r.id == Config.MOD_ROLE for r in interaction.user.roles):
+    if not any(r.id == Config.HOM_MOD_ROLE for r in interaction.user.roles):
         await interaction.followup.send(
             f"{Constants.DENIED} You are not allowed to do that.",
             ephemeral=True,
@@ -333,7 +333,7 @@ async def send_log_message(
 ) -> t.Optional[discord.Message]:
     assert interaction.guild
 
-    log_channel = get_channel(interaction.guild, Config.MOD_LOG_CHANNEL)
+    log_channel = get_channel(interaction.guild, Config.HOM_MOD_LOG_CHANNEL)
     embed = discord.Embed(title=title, description=content)
     if mod:
         embed.set_footer(text=f"Mod: {mod.display_name}")
@@ -366,7 +366,7 @@ async def set_flag_autocomplete(
 
 
 def set_flag(username: str, country: str) -> requests.models.Response:
-    url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/country"
+    url = f"{Config.HOM_BASE_API_URL}/players/{username}/country"
     headers = {"userAgent": "Helpful Old Man Discord Bot"}
     json = {
         "country": country if country != "null" else None,
