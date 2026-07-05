@@ -66,7 +66,7 @@ class Constants:
     __slots__ = ()
 
     HEADERS: t.Final[t.Dict[str, str]] = {
-        "userAgent": "Helpful Old Man Discord Bot",
+        "User-Agent": "Helpful Old Man Discord Bot",
         "x-api-key": f"{Config.HOM_API_KEY}",
     }
     ARROW: t.Final[str] = "→"
