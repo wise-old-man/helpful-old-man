@@ -366,7 +366,7 @@ async def set_flag_autocomplete(
 
 
 def set_flag(username: str, country: str) -> requests.models.Response:
-    url = f"{Config.DISCORD_BOT_BASE_API_URL}/players/{username}/country"
+    url = f"{Config.HOM_BASE_API_URL}/players/{username}/country"
     headers = Constants.HEADERS
     json = {
         "country": country if country != "null" else None,
