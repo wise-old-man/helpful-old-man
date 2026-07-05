@@ -231,7 +231,11 @@ class Competition(commands.GroupCog, name="competition"):
             color=Constants.BLUE,
         )
 
-        embed.add_field(name="",value=f"Success Count: `{len(successful_competitions)}`\nSkipped Count: `{len(skipped_competitions)}`\nError Count: `{len(error_competitions)}`")
+        embed.add_field(
+            name="",
+            value=f"Success Count: `{len(successful_competitions)}`\nSkipped Count: "
+            f"`{len(skipped_competitions)}`\nError Count: `{len(error_competitions)}`",
+        )
 
         await interaction.followup.send(embed=embed)
 
