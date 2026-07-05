@@ -15,6 +15,11 @@ def _int(var: str) -> int:
     return int(environ[var])
 
 
+def _csv(var: str) -> t.Tuple[str, ...]:
+    value = environ.get(var, "")
+    return tuple(part.strip() for part in value.split(",") if part.strip())
+
+
 def _running_in_docker() -> bool:
     return Path("/.dockerenv").exists()
 
@@ -43,19 +48,24 @@ def _container_host_url(var: str) -> str:
 class Config:
     __slots__ = ()
 
-    DISCORD_TOKEN: t.Final[str] = environ["HOM_DISCORD_TOKEN"]
-    SUPPORT_CHANNEL: t.Final[int] = _int("HOM_SUPPORT_CHANNEL")
-    TICKET_CATEGORY: t.Final[int] = _int("HOM_TICKET_CATEGORY")
-    MOD_LOG_CHANNEL: t.Final[int] = _int("HOM_MOD_LOG_CHANNEL")
-    PATREON_CHANNEL: t.Final[int] = _int("HOM_PATREON_CHANNEL")
-    QUESTIONS_CHANNEL: t.Final[int] = _int("HOM_QUESTIONS_CHANNEL")
-    FLAG_CHANNEL: t.Final[int] = _int("HOM_FLAG_CHANNEL")
-    MOD_ROLE: t.Final[int] = _int("HOM_MOD_ROLE")
-    GROUP_LEADER_ROLE: t.Final[int] = _int("HOM_GROUP_LEADER_ROLE")
+    HOM_DISCORD_TOKEN: t.Final[str] = environ["HOM_DISCORD_TOKEN"]
+    HOM_SUPPORT_CHANNEL: t.Final[int] = _int("HOM_SUPPORT_CHANNEL")
+    HOM_TICKET_CATEGORY: t.Final[int] = _int("HOM_TICKET_CATEGORY")
+    HOM_MOD_LOG_CHANNEL: t.Final[int] = _int("HOM_MOD_LOG_CHANNEL")
+    HOM_PATREON_CHANNEL: t.Final[int] = _int("HOM_PATREON_CHANNEL")
+    HOM_QUESTIONS_CHANNEL: t.Final[int] = _int("HOM_QUESTIONS_CHANNEL")
+    HOM_FLAG_CHANNEL: t.Final[int] = _int("HOM_FLAG_CHANNEL")
+    HOM_MOD_ROLE: t.Final[int] = _int("HOM_MOD_ROLE")
+    HOM_GROUP_LEADER_ROLE: t.Final[int] = _int("HOM_GROUP_LEADER_ROLE")
     SHARED_ADMIN_PASSWORD: t.Final[str] = environ["SHARED_ADMIN_PASSWORD"]
-    DISCORD_BOT_BASE_API_URL: t.Final[str] = _container_host_url("HOM_BASE_API_URL")
-    DISCORD_BOT_BASE_WEBSITE_URL: t.Final[str] = environ["HOM_BASE_WEBSITE_URL"]
+    HOM_BASE_API_URL: t.Final[str] = _container_host_url("HOM_BASE_API_URL")
+    HOM_BASE_WEBSITE_URL: t.Final[str] = environ["HOM_BASE_WEBSITE_URL"]
     HOM_API_KEY: t.Final[str] = environ["HOM_API_KEY"]
+    HOM_GITHUB_REPOSITORIES: t.Final[t.Tuple[str, ...]] = _csv("HOM_GITHUB_REPOSITORIES")
+    HOM_GITHUB_APP_ID: t.Final[t.Optional[str]] = environ.get("HOM_GITHUB_APP_ID")
+    HOM_GITHUB_PRIVATE_KEY_PATH: t.Final[t.Optional[str]] = environ.get(
+        "HOM_GITHUB_PRIVATE_KEY_PATH"
+    )
 
     def __init__(self) -> None:
         raise RuntimeError("Config should not be instantiated.")
