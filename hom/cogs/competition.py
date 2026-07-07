@@ -229,30 +229,15 @@ class Competition(commands.GroupCog, name="competition"):
             return
 
         embed = discord.Embed(
-            title=f"Competition Removal: `{username}`",
+            title=f"Competition(s) removal for `{username}`",
             color=Constants.BLUE,
         )
 
-        if successful_competitions:
-            embed.add_field(
-                name=f"{Constants.COMPLETE} Removed",
-                value=", ".join(successful_competitions)[:1024],
-                inline=False,
-            )
-
-        if error_competitions:
-            embed.add_field(
-                name=f"{Constants.DENIED} Errors",
-                value="\n".join(error_competitions)[:1024],
-                inline=False,
-            )
-
-        if skipped_competitions:
-            embed.add_field(
-                name="Skipped",
-                value=", ".join(skipped_competitions)[:1024],
-                inline=False,
-            )
+        embed.add_field(
+            name="",
+            value=f"Success Count: `{len(successful_competitions)}`\nSkipped Count: "
+            f"`{len(skipped_competitions)}`\nError Count: `{len(error_competitions)}`",
+        )
 
         await interaction.followup.send(embed=embed)
 
