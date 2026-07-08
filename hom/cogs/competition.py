@@ -9,7 +9,6 @@ from discord.ext import commands
 
 from hom import utils
 from hom.bot import Bot
-from hom.config import Config
 from hom.config import Constants
 
 __all__ = ("Competition",)
@@ -148,24 +147,14 @@ class Competition(commands.GroupCog, name="competition"):
         skipped_competitions: List[str] = []
 
         if competition_id is not None:
-            competition_link = (
-                f"[{competition_id}]({Config.HOM_BASE_WEBSITE_URL}/competitions/{competition_id})"
-            )
             status, text = await self.bot.wom.remove_competition_participant(
                 competition_id, username
             )
 
             if status != 200:
-                if "cannot remove all competition participants" in text.lower():
-                    skipped_competitions.append(competition_link)
-                elif "none of the players given were competing" in text.lower():
-                    skipped_competitions.append(competition_link + " (Player not found)")
-                else:
-                    error_competitions.append(
-                        competition_link + f" {Constants.ARROW} ```{text}```"
-                    )
+                error_competitions.append(str(competition_id))
             else:
-                successful_competitions.append(competition_link)
+                successful_competitions.append(str(competition_id))
         else:
             data = await self.bot.wom.get_player_competitions(username)
 
@@ -177,9 +166,6 @@ class Competition(commands.GroupCog, name="competition"):
 
             for comp in data:
                 comp_id = comp["competitionId"]
-                competition_link = (
-                    f"[{comp_id}]({Config.HOM_BASE_WEBSITE_URL}/competitions/{comp_id})"
-                )
 
                 if group_id == comp["competition"]["groupId"]:
                     status, text = await self.bot.wom.remove_competition_participant(
@@ -187,17 +173,16 @@ class Competition(commands.GroupCog, name="competition"):
                     )
 
                     if status != 200:
-                        if "cannot remove all competition participants" in text.lower():
-                            skipped_competitions.append(competition_link)
-                        elif "none of the players given were competing" in text.lower():
-                            skipped_competitions.append(competition_link + " (Player not found)")
+                        if (
+                            "cannot remove all competition participants" in text.lower()
+                            or "none of the players given were competing" in text.lower()
+                        ):
+                            skipped_competitions.append(str(comp_id))
                         else:
-                            error_competitions.append(
-                                competition_link + f" {Constants.ARROW} ```{text}```"
-                            )
+                            error_competitions.append(str(comp_id))
                         continue
 
-                    successful_competitions.append(competition_link)
+                    successful_competitions.append(str(comp_id))
 
         if not any([successful_competitions, error_competitions, skipped_competitions]):
             await interaction.followup.send(
@@ -207,7 +192,7 @@ class Competition(commands.GroupCog, name="competition"):
 
         embed = discord.Embed(
             title=f"Competition(s) removal for `{username}`",
-            color=Constants.BLUE,
+            color=Constants.GREEN,
         )
 
         embed.add_field(
@@ -215,6 +200,20 @@ class Competition(commands.GroupCog, name="competition"):
             value=f"Success Count: `{len(successful_competitions)}`\nSkipped Count: "
             f"`{len(skipped_competitions)}`\nError Count: `{len(error_competitions)}`",
         )
+
+        if len(skipped_competitions) > 0:
+            embed.add_field(
+                name="",
+                value=f"Skipped Competitons: `{', '.join(skipped_competitions)}`"[:1024],
+                inline=False,
+            )
+
+        if len(error_competitions) > 0:
+            embed.add_field(
+                name="",
+                value=f"Error Competiions: `{', '.join(error_competitions)}`"[:1024],
+                inline=False,
+            )
 
         await interaction.followup.send(embed=embed)
 
