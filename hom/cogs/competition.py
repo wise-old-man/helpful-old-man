@@ -4,7 +4,6 @@ from typing import Optional
 from typing import Set
 
 import discord
-import requests
 from discord import app_commands
 from discord.ext import commands
 
@@ -31,14 +30,11 @@ class Competition(commands.GroupCog, name="competition"):
         if not username:
             return []
 
-        url = f"{Config.HOM_BASE_API_URL}/players/{username}/competitions"
+        data = await self.bot.wom.get_player_competitions(username)
 
-        response = requests.get(url=url, headers=Constants.HEADERS)
-
-        if response.status_code != 200:
+        if not data:
             return []
 
-        data = response.json()
         search = current.lower().strip()
         choices: List[app_commands.Choice[int]] = []
 
@@ -72,25 +68,20 @@ class Competition(commands.GroupCog, name="competition"):
         if not username:
             return []
 
-        url = f"{Config.HOM_BASE_API_URL}/players/{username}/groups"
+        data = await self.bot.wom.get_player_competitions(username)
 
-        response = requests.get(
-            url=url,
-            headers=Constants.HEADERS,
-        )
-
-        if response.status_code != 200:
+        if not data:
             return []
 
-        data = response.json()
         search = current.lower().strip()
         choices: List[app_commands.Choice[int]] = []
 
         seen: Set[int] = set()
 
         for entry in data:
-            group_id = entry.get("groupId")
-            group_name = entry.get("group", {}).get("name", "")
+            competition = entry.get("competition", {})
+            group_id = competition.get("groupId")
+            group_name = competition.get("group", {}).get("name", "")
 
             if not isinstance(group_id, int) or group_id in seen:
                 continue
@@ -160,63 +151,49 @@ class Competition(commands.GroupCog, name="competition"):
             competition_link = (
                 f"[{competition_id}]({Config.HOM_BASE_WEBSITE_URL}/competitions/{competition_id})"
             )
-            response = requests.delete(
-                url=f"{Config.HOM_BASE_API_URL}/competitions/{competition_id}/participants",
-                json={
-                    "participants": [username],
-                    "adminPassword": Config.SHARED_ADMIN_PASSWORD,
-                },
-                headers=Constants.HEADERS,
+            status, text = await self.bot.wom.remove_competition_participant(
+                competition_id, username
             )
 
-            if response.status_code != 200:
-                if "cannot remove all competition participants" in response.text.lower():
+            if status != 200:
+                if "cannot remove all competition participants" in text.lower():
                     skipped_competitions.append(competition_link)
-                elif "none of the players given were competing" in response.text.lower():
+                elif "none of the players given were competing" in text.lower():
                     skipped_competitions.append(competition_link + " (Player not found)")
                 else:
                     error_competitions.append(
-                        competition_link + f" {Constants.ARROW} ```{response.text}```"
+                        competition_link + f" {Constants.ARROW} ```{text}```"
                     )
             else:
                 successful_competitions.append(competition_link)
         else:
-            url = f"{Config.HOM_BASE_API_URL}/players/{username}/competitions"
-            response = requests.get(
-                url=url,
-                headers=Constants.HEADERS,
-            )
+            data = await self.bot.wom.get_player_competitions(username)
 
-            if response.status_code != 200:
+            if not data:
                 await interaction.followup.send(
                     f"Could not find any competitions related to the username: `{username}`."
                 )
                 return
 
-            for comp in response.json():
+            for comp in data:
                 comp_id = comp["competitionId"]
                 competition_link = (
                     f"[{comp_id}]({Config.HOM_BASE_WEBSITE_URL}/competitions/{comp_id})"
                 )
 
                 if group_id == comp["competition"]["groupId"]:
-                    response = requests.delete(
-                        url=f"{Config.HOM_BASE_API_URL}/competitions/{comp_id}/participants",
-                        json={
-                            "participants": [username],
-                            "adminPassword": Config.SHARED_ADMIN_PASSWORD,
-                        },
-                        headers=Constants.HEADERS,
+                    status, text = await self.bot.wom.remove_competition_participant(
+                        comp_id, username
                     )
 
-                    if response.status_code != 200:
-                        if "cannot remove all competition participants" in response.text.lower():
+                    if status != 200:
+                        if "cannot remove all competition participants" in text.lower():
                             skipped_competitions.append(competition_link)
-                        elif "none of the players given were competing" in response.text.lower():
+                        elif "none of the players given were competing" in text.lower():
                             skipped_competitions.append(competition_link + " (Player not found)")
                         else:
                             error_competitions.append(
-                                competition_link + f" {Constants.ARROW} ```{response.text}```"
+                                competition_link + f" {Constants.ARROW} ```{text}```"
                             )
                         continue
 
