@@ -1,6 +1,5 @@
 import re
 import typing as t
-from logging import log
 from urllib.parse import quote
 
 import discord
@@ -203,7 +202,8 @@ class PlayerGroupModal(discord.ui.Modal, title="Player Lookup"):
             embed = discord.Embed(title="Player Group Lookup", colour=discord.Colour.green())
 
             embed.add_field(
-                name="Useranme", value=f"[{rsn}]({Config.HOM_BASE_WEBSITE_URL}/players/{quote(rsn)})"
+                name="Useranme",
+                value=f"[{rsn}]({Config.HOM_BASE_WEBSITE_URL}/players/{quote(rsn)})",
             )
             embed.add_field(name="Group", value=str(data["name"]))
             embed.add_field(
