@@ -61,7 +61,7 @@ async def _build_group_lookup_permission_message(
 ) -> str:
     message = (
         f"{Constants.DENIED} You do not have the required permissions to perform this action."
-        f" An available moderator will assist you as soon as possible."
+        f" A moderator will assist you as soon as possible."
     )
 
     if not isinstance(interaction.channel, discord.TextChannel):
@@ -202,7 +202,7 @@ class PlayerGroupModal(discord.ui.Modal, title="Player Lookup"):
             embed = discord.Embed(title="Player Group Lookup", colour=discord.Colour.green())
 
             embed.add_field(
-                name="Useranme",
+                name="Username",
                 value=f"[{rsn}]({Config.HOM_BASE_WEBSITE_URL}/players/{quote(rsn)})",
             )
             embed.add_field(name="Group", value=str(data["name"]))
@@ -259,7 +259,7 @@ class ApproveDenyPlayerRemoveRequest(discord.ui.View):
         if not any(role.id == Config.HOM_MOD_ROLE for role in interaction.user.roles):
             await interaction.followup.send(
                 f"{Constants.DENIED} You do not have the required permissions to perform this action."
-                f" An available moderator will assist you as soon as possible.",
+                f" A moderator will assist you as soon as possible.",
                 ephemeral=True,
             )
             return
