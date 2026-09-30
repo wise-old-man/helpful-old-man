@@ -273,7 +273,7 @@ class SupportGroup(discord.ui.View):
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                example_url="group.jpg",
+                example_url="player.jpg",
                 view=GroupRemove(),
             )
         else:
@@ -281,7 +281,7 @@ class SupportGroup(discord.ui.View):
                 interaction,
                 instructions,
                 f"Groups {Constants.ARROW} {button.label}",
-                example_url="group.jpg",
+                example_url="player.jpg",
                 view=GroupRemove(),
             )
 

@@ -1,5 +1,6 @@
 import re
 import typing as t
+from urllib.parse import quote
 
 import discord
 
@@ -58,7 +59,10 @@ async def _get_ticket_channel(
 async def _build_group_lookup_permission_message(
     interaction: discord.Interaction[Bot],
 ) -> str:
-    message = f"{Constants.DENIED} You do not have the required permissions to use this."
+    message = (
+        f"{Constants.DENIED} You do not have the required permissions to perform this action."
+        f" A moderator will assist you as soon as possible."
+    )
 
     if not isinstance(interaction.channel, discord.TextChannel):
         return message
@@ -145,12 +149,12 @@ class GroupIdModal(discord.ui.Modal, title="Group Lookup"):
         embed.add_field(
             name="\u200b",
             value=(
-                "-# Not your group? You can find your group id on the "
-                f"[website]({Config.HOM_BASE_WEBSITE_URL}/groups) just below the group "
+                "-# Not your group? You can find your Group ID on the "
+                f"[website]({Config.HOM_BASE_WEBSITE_URL}/groups), just below your group's "
                 "name and description."
             ),
-            inline=False,
         )
+        embed.set_footer(text="The buttons below are for admin use only.")
 
         await interaction.followup.send(embed=embed, view=ApproveDenyGroupRequest(group_id))
 
@@ -193,13 +197,14 @@ class PlayerGroupModal(discord.ui.Modal, title="Player Lookup"):
             return
 
         usernames = [membership["player"]["username"] for membership in data["memberships"]]
-        if any(username.lower() == rsn.lower() for username in usernames):
-            embed = discord.Embed(
-                title="Player Group Lookup",
-                colour=discord.Colour.green(),
-                url=f"{Config.HOM_BASE_WEBSITE_URL}/players/{rsn}",
+        normalized_rsn = rsn.lower().replace("_", " ").replace("-", " ")
+        if any(username.lower() == normalized_rsn for username in usernames):
+            embed = discord.Embed(title="Player Group Lookup", colour=discord.Colour.green())
+
+            embed.add_field(
+                name="Username",
+                value=f"[{rsn}]({Config.HOM_BASE_WEBSITE_URL}/players/{quote(rsn)})",
             )
-            embed.add_field(name="Player", value=rsn)
             embed.add_field(name="Group", value=str(data["name"]))
             embed.add_field(
                 name="Group ID",
@@ -220,7 +225,7 @@ class PlayerGroupModal(discord.ui.Modal, title="Player Lookup"):
         embed = discord.Embed(
             title="Player Lookup",
             colour=discord.Colour.red(),
-            url=f"{Config.HOM_BASE_WEBSITE_URL}/players/{rsn}",
+            url=f"{Config.HOM_BASE_WEBSITE_URL}/players/{quote(rsn)}",
         )
         embed.add_field(
             name=f"{rsn} not found in group",
@@ -253,7 +258,8 @@ class ApproveDenyPlayerRemoveRequest(discord.ui.View):
 
         if not any(role.id == Config.HOM_MOD_ROLE for role in interaction.user.roles):
             await interaction.followup.send(
-                f"{Constants.DENIED} You do not have the required permissions to use this.",
+                f"{Constants.DENIED} You do not have the required permissions to perform this action."
+                f" A moderator will assist you as soon as possible.",
                 ephemeral=True,
             )
             return
