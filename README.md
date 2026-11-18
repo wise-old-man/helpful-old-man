@@ -142,3 +142,35 @@ A failed/unconfirmed API request stops the run; earlier updates remain applied.
 The summary counts unique users given the role (or needing it in dry run), and
 the CSV's `roleAction` column records each developer's role outcome. Successfully
 added roles remain assigned if a later API update fails or finds no matching keys.
+
+For this one-time backfill, the command also reads member-role audit entries
+before changing any roles or keys. It uses each matched user's earliest retained
+addition of the selected API Consumer role as an estimate of key creation time,
+and sends that UTC timestamp as `createdAt` alongside `developerDiscordId`.
+The backend PUT endpoint is assumed to accept `createdAt`. The same date applies
+to all API key rows matching that developer. If no date is found, `createdAt` is
+omitted from the request and left unchanged. Audit entries are retained for only
+45 days; older dates cannot be recovered this way. The bot requires View Audit
+Log permission. Failed audit retrieval aborts before making any changes.
+Dry runs show date counts and include the proposed `createdAt` in the results CSV.
+
+## Audit API moderator logs
+
+Moderators can run `/audit-mod-logs channel:<channel>` to scan bot messages in
+the selected text channel, up to the time the command was invoked. A message
+matches if its content or any embed title/description contains `api`, and none
+of those contain `channel` or `for user` (all comparisons ignore case).
+The private response includes the match count, the earliest and latest matching
+messages with timestamps and links, and a text attachment listing all matching
+message links in chronological order. The attachment is built in memory and
+is not saved to disk. Both the moderator and bot need View Channel and Read
+Message History permissions. Interrupted scans or scans exceeding 12 minutes
+are explicitly reported as incomplete.
+One private status message updates every 1,000 processed messages with the
+processed and matching counts, then updates once more when the scan finishes.
+Discord does not provide the total channel message count, so progress has no denominator.
+The summary is sent separately from attachments. Reports exceeding Discord's
+interaction upload limit are split into numbered text files at complete link
+boundaries, with each part uploaded separately. If an upload is rejected, the
+bot reports which part failed and how many parts were delivered; the summary
+remains available. All parts are built in memory and never saved to disk.
