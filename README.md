@@ -153,3 +153,16 @@ omitted from the request and left unchanged. Audit entries are retained for only
 45 days; older dates cannot be recovered this way. The bot requires View Audit
 Log permission. Failed audit retrieval aborts before making any changes.
 Dry runs show date counts and include the proposed `createdAt` in the results CSV.
+
+## Audit API moderator logs
+
+Moderators can run `/audit-mod-logs channel:<channel>` to scan bot messages in
+the selected text channel, up to the time the command was invoked. A message
+matches if its content or any embed title/description contains `api`, and none
+of those contain `channel` or `for user` (all comparisons ignore case).
+The private response includes the match count, the earliest and latest matching
+messages with timestamps and links, and a text attachment listing all matching
+message links in chronological order. The attachment is built in memory and
+is not saved to disk. Both the moderator and bot need View Channel and Read
+Message History permissions. Interrupted scans or scans exceeding 12 minutes
+are explicitly reported as incomplete.
