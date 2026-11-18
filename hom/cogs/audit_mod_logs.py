@@ -105,7 +105,7 @@ class AuditModLogs(commands.Cog):
                         earliest = message
                     if latest is None or message.created_at > latest.created_at:
                         latest = message
-                if scanned % 1000 == 0:
+                if scanned % 2500 == 0:
                     try:
                         await progress.edit(
                             content=f"Scanning {channel.mention}: **{scanned:,}** messages "
@@ -153,7 +153,7 @@ class AuditModLogs(commands.Cog):
         except discord.HTTPException:
             pass
         await interaction.followup.send(
-            embed=summary, ephemeral=True, allowed_mentions=discord.AllowedMentions.none()
+            embed=summary, ephemeral=False, allowed_mentions=discord.AllowedMentions.none()
         )
         await self.send_link_report(interaction, links.getvalue() or "No matching messages.\n")
 
@@ -168,7 +168,7 @@ class AuditModLogs(commands.Cog):
             await interaction.followup.send(
                 "The link report could not fit Discord's upload limit. "
                 "The audit summary above is still available; no report was saved to disk.",
-                ephemeral=True,
+                ephemeral=False,
             )
             return
         for index, part in enumerate(parts, start=1):
@@ -183,7 +183,7 @@ class AuditModLogs(commands.Cog):
                 await interaction.followup.send(
                     content=f"Message links (part {index} of {len(parts)}).",
                     file=report,
-                    ephemeral=True,
+                    ephemeral=False,
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
             except discord.HTTPException:
@@ -191,7 +191,7 @@ class AuditModLogs(commands.Cog):
                     f"Discord rejected link-file part {index} of {len(parts)}. "
                     f"{index - 1} parts were uploaded; the remaining links were not delivered. "
                     "The audit summary above is still available. No report was saved to disk.",
-                    ephemeral=True,
+                    ephemeral=False,
                 )
                 return
             finally:
