@@ -1,5 +1,6 @@
 import asyncio
 import csv
+import datetime
 import io
 import time
 import typing as t
@@ -57,6 +58,36 @@ def match_developers(
     return matches
 
 
+async def find_role_addition_dates(
+    guild: discord.Guild,
+    role_id: int,
+    user_ids: t.Set[int],
+    before: datetime.datetime,
+) -> t.Dict[int, datetime.datetime]:
+    """Find the earliest retained addition of the selected role for each matched user."""
+    dates: t.Dict[int, datetime.datetime] = {}
+    if not user_ids:
+        return dates
+    async for entry in guild.audit_logs(
+        limit=None,
+        action=discord.AuditLogAction.member_role_update,
+        before=before,
+        oldest_first=True,
+    ):
+        if entry.target is None:
+            continue
+        user_id = int(entry.target.id)
+        if user_id not in user_ids:
+            continue
+        added_roles: t.List[discord.Role] = getattr(entry.after, "roles", [])
+        if not any(role.id == role_id for role in added_roles):
+            continue
+        previous = dates.get(user_id)
+        if previous is None or entry.created_at < previous:
+            dates[user_id] = entry.created_at
+    return dates
+
+
 class ApiKeys(commands.Cog):
     def __init__(self) -> None:
         self.running_guilds: t.Set[int] = set()
@@ -87,6 +118,13 @@ class ApiKeys(commands.Cog):
 
         assert interaction.guild
         guild = interaction.guild
+        if not guild.me.guild_permissions.view_audit_log:
+            await interaction.followup.send(
+                "I need the View Audit Log permission to run this command. "
+                "No API keys or roles were changed.",
+                ephemeral=True,
+            )
+            return
         role_id = api_consumer_role.id
         if guild.get_role(role_id) is None:
             await interaction.followup.send(
@@ -115,6 +153,7 @@ class ApiKeys(commands.Cog):
         dry_run: bool = True,
         counts_only: bool = False,
     ) -> None:
+        started_at = datetime.datetime.now(datetime.timezone.utc)
         try:
             if attachment.size > MAX_CSV_BYTES:
                 raise ValueError("The CSV must be no larger than 1 MiB.")
@@ -140,6 +179,18 @@ class ApiKeys(commands.Cog):
             return
 
         matches = match_developers(developers, members)
+        matched_ids = {candidates[0].id for candidates in matches.values() if len(candidates) == 1}
+        try:
+            role_dates = await asyncio.wait_for(
+                find_role_addition_dates(guild, role_id, matched_ids, started_at), timeout=120
+            )
+        except (discord.HTTPException, asyncio.TimeoutError):
+            await interaction.followup.send(
+                "Could not read the server audit log. Check the bot's View Audit Log permission. "
+                "No API keys or roles were changed.",
+                ephemeral=True,
+            )
+            return
         bot = t.cast(Bot, interaction.client)
         output = io.StringIO()
         writer = csv.writer(output)
@@ -148,6 +199,9 @@ class ApiKeys(commands.Cog):
         role_added: t.Set[int] = set()
         role_needed: t.Set[int] = set()
         role_actions: t.Dict[str, str] = {}
+        creation_dates: t.Dict[str, str] = {}
+        users_with_dates: t.Set[int] = set()
+        users_without_dates: t.Set[int] = set()
         stopped = False
         deadline = time.monotonic() + 600
         for developer in developers:
@@ -175,6 +229,14 @@ class ApiKeys(commands.Cog):
                 skipped += 1
                 writer.writerow([developer, "username_changed", "", ""])
                 continue
+            role_date = role_dates.get(member.id)
+            if role_date is not None:
+                creation_dates[developer] = role_date.isoformat(timespec="milliseconds").replace(
+                    "+00:00", "Z"
+                )
+                users_with_dates.add(member.id)
+            else:
+                users_without_dates.add(member.id)
             if not any(role.id == role_id for role in member.roles):
                 if member.id in role_added:
                     role_actions[developer] = "added_earlier_in_run"
@@ -203,7 +265,12 @@ class ApiKeys(commands.Cog):
                 linked += 1
                 writer.writerow([developer, "would_link", member.id, ""])
                 continue
-            count = await bot.wom.link_developer_api_keys(developer, member.id)
+            if developer in creation_dates:
+                count = await bot.wom.link_developer_api_keys(
+                    developer, member.id, created_at=creation_dates[developer]
+                )
+            else:
+                count = await bot.wom.link_developer_api_keys(developer, member.id)
             if count is None:
                 # A timeout may follow a committed update. Stop without blindly retrying.
                 stopped = True
@@ -232,11 +299,20 @@ class ApiKeys(commands.Cog):
                 f"Added the API Consumer role to {len(role_added)} users. "
                 "Updates include revoked keys and replace any previous developerDiscordId values."
             )
+        summary += (
+            f"\nAudit log: {len(users_with_dates)} matched users have a role-addition date; "
+            f"{len(users_without_dates)} have no retained date (createdAt left unchanged). "
+            "Dates use the earliest retained addition of the selected role as a creation-date estimate. "
+            "Discord retains audit entries for 45 days."
+        )
         rows = list(csv.reader(io.StringIO(output.getvalue())))
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(rows[0] + ["roleAction"])
-        writer.writerows(row + [role_actions.get(row[0], "not_checked")] for row in rows[1:])
+        writer.writerow(rows[0] + ["roleAction", "createdAt"])
+        writer.writerows(
+            row + [role_actions.get(row[0], "not_checked"), creation_dates.get(row[0], "")]
+            for row in rows[1:]
+        )
         csv_content = output.getvalue()
         skipped_lines: t.List[str] = []
         reasons = {

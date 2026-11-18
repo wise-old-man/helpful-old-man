@@ -142,3 +142,14 @@ A failed/unconfirmed API request stops the run; earlier updates remain applied.
 The summary counts unique users given the role (or needing it in dry run), and
 the CSV's `roleAction` column records each developer's role outcome. Successfully
 added roles remain assigned if a later API update fails or finds no matching keys.
+
+For this one-time backfill, the command also reads member-role audit entries
+before changing any roles or keys. It uses each matched user's earliest retained
+addition of the selected API Consumer role as an estimate of key creation time,
+and sends that UTC timestamp as `createdAt` alongside `developerDiscordId`.
+The backend PUT endpoint is assumed to accept `createdAt`. The same date applies
+to all API key rows matching that developer. If no date is found, `createdAt` is
+omitted from the request and left unchanged. Audit entries are retained for only
+45 days; older dates cannot be recovered this way. The bot requires View Audit
+Log permission. Failed audit retrieval aborts before making any changes.
+Dry runs show date counts and include the proposed `createdAt` in the results CSV.

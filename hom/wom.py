@@ -19,15 +19,20 @@ class WomClient:
         self._session = session
         self._base = Config.HOM_BASE_API_URL
 
-    async def link_developer_api_keys(self, developer: str, discord_user_id: int) -> Optional[int]:
+    async def link_developer_api_keys(
+        self, developer: str, discord_user_id: int, created_at: Optional[str] = None
+    ) -> Optional[int]:
         """Return the matching key count, zero for no match, or None on failure."""
+        payload = {
+            "adminPassword": Config.SHARED_ADMIN_PASSWORD,
+            "developerDiscordId": str(discord_user_id),
+        }
+        if created_at is not None:
+            payload["createdAt"] = created_at
         try:
             async with self._session.put(
                 f"{self._base}/api-keys/developer/{quote(developer, safe='')}",
-                json={
-                    "adminPassword": Config.SHARED_ADMIN_PASSWORD,
-                    "developerDiscordId": str(discord_user_id),
-                },
+                json=payload,
                 headers=Constants.HEADERS,
                 timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
