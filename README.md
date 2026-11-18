@@ -109,3 +109,36 @@ Every time you save a python file in the `hom` directory, the bot will restart.
 
 Helpful Old Man is licensed under the [MIT License]
 (https://github.com/wise-old-man/helpful-old-man/blob/main/LICENSE).
+
+## Link API key developers
+
+Moderators can run `/link-user-api-keys developers:<devs.csv> api_consumer_role:<role>`
+and select the server's API Consumer role directly in the command. No role ID
+environment variable is needed. Upload a UTF-8 CSV containing a `developer` column.
+The bot fetches the server's members and
+matches exact, case-sensitive usernames or legacy `name#1234` tags. It does not
+match nicknames, display names, or guess old usernames. Duplicate CSV values are
+processed once. Ambiguous matches are skipped. The bot re-fetches each matched
+member and adds the API Consumer role if missing before sending the key update.
+If adding the role fails, that member's keys are not updated. The bot needs
+Manage Roles permission and a role above the API Consumer role to assign it.
+
+The command defaults to `dry_run:True`: it makes no API update requests or role changes and
+reports how many users would be linked, along with names and reasons for those
+who would not. It also reports how many users would receive the missing role and
+attaches the full results CSV. The preview checks Discord matches and roles; it cannot
+verify database key counts. Use `dry_run:False` explicitly to apply the updates.
+Developer names are sorted alphabetically (ignoring case for sorting, preserving
+case for matching). Set `counts_only:True` to show one category-count summary
+instead of individual username messages; the full sorted CSV is still attached.
+
+The command calls the admin-only `PUT /api-keys/developer/:developer` endpoint,
+URL-encoding the developer name and sending the member's ID as
+`developerDiscordId`. This updates all matching API key rows, including revoked
+keys, and replaces previous links. The backend migration and endpoint must be
+available at `HOM_BASE_API_URL`. The bot needs Server Members Intent enabled.
+The ephemeral results CSV lists linked, skipped, failed, and unprocessed rows.
+A failed/unconfirmed API request stops the run; earlier updates remain applied.
+The summary counts unique users given the role (or needing it in dry run), and
+the CSV's `roleAction` column records each developer's role outcome. Successfully
+added roles remain assigned if a later API update fails or finds no matching keys.

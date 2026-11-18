@@ -651,6 +651,35 @@ class SupportPlayer(discord.ui.View):
             )
 
 
+async def _close_ticket(interaction: discord.Interaction[commands.Bot]) -> None:
+    assert isinstance(interaction.channel, discord.TextChannel)
+    assert isinstance(interaction.user, discord.Member)
+    await interaction.response.defer()
+
+    ticket_user = await utils.get_user_by_original_message(interaction.channel)
+    if ticket_user is None:
+        await interaction.followup.send(
+            "Could not determine the ticket owner. The ticket has not been closed.",
+            ephemeral=True,
+        )
+        return
+    if not isinstance(ticket_user, discord.Member):
+        try:
+            ticket_user = await interaction.channel.guild.fetch_member(ticket_user.id)
+        except discord.NotFound:
+            await interaction.followup.send(
+                "The ticket owner is no longer in the server. The ticket has not been closed.",
+                ephemeral=True,
+            )
+            return
+
+    await interaction.channel.set_permissions(ticket_user, overwrite=None)
+    embed = discord.Embed(description=f"{interaction.user.mention} has closed the ticket.")
+    await interaction.followup.send(
+        ephemeral=False, embed=embed, view=SupportMessageCloseChannel()
+    )
+
+
 class SupportMessage(discord.ui.View):
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -664,15 +693,7 @@ class SupportMessage(discord.ui.View):
     async def message_close(
         self: ViewT, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button[ViewT]
     ) -> None:
-        assert isinstance(interaction.channel, discord.TextChannel)
-        assert isinstance(interaction.user, discord.Member)
-
-        embed = discord.Embed(description=f"{interaction.user.mention} has closed the ticket.")
-        await interaction.response.defer()
-        await interaction.channel.set_permissions(interaction.user, overwrite=None)
-        await interaction.followup.send(
-            ephemeral=False, embed=embed, view=SupportMessageCloseChannel()
-        )
+        await _close_ticket(interaction)
 
 
 class SupportMessageCloseChannel(discord.ui.View):
@@ -726,15 +747,7 @@ class GroupRemove(discord.ui.View):
     async def message_close(
         self: ViewT, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button[ViewT]
     ) -> None:
-        assert isinstance(interaction.channel, discord.TextChannel)
-        assert isinstance(interaction.user, discord.Member)
-
-        embed = discord.Embed(description=f"{interaction.user.mention} has closed the ticket.")
-        await interaction.response.defer()
-        await interaction.channel.set_permissions(interaction.user, overwrite=None)
-        await interaction.followup.send(
-            ephemeral=False, embed=embed, view=SupportMessageCloseChannel()
-        )
+        await _close_ticket(interaction)
 
     @discord.ui.button(
         emoji=f"{Constants.PEN}",
@@ -761,15 +774,7 @@ class GroupDetails(discord.ui.View):
     async def message_close(
         self: ViewT, interaction: discord.Interaction[commands.Bot], _: discord.ui.Button[ViewT]
     ) -> None:
-        assert isinstance(interaction.channel, discord.TextChannel)
-        assert isinstance(interaction.user, discord.Member)
-
-        embed = discord.Embed(description=f"{interaction.user.mention} has closed the ticket.")
-        await interaction.response.defer()
-        await interaction.channel.set_permissions(interaction.user, overwrite=None)
-        await interaction.followup.send(
-            ephemeral=False, embed=embed, view=SupportMessageCloseChannel()
-        )
+        await _close_ticket(interaction)
 
     @discord.ui.button(
         emoji=Constants.PEN,
