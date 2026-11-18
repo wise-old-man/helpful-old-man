@@ -21,6 +21,21 @@ def matches_api_log(message: discord.Message) -> bool:
     )
 
 
+def split_link_report(text: str, max_bytes: int) -> t.Iterator[bytes]:
+    """Split on complete lines, measuring the encoded upload size."""
+    chunk = bytearray()
+    for line in io.StringIO(text):
+        encoded = line.encode("utf-8")
+        if len(encoded) > max_bytes:
+            raise ValueError("A single report line exceeds the upload limit.")
+        if len(chunk) + len(encoded) > max_bytes:
+            yield bytes(chunk)
+            chunk.clear()
+        chunk.extend(encoded)
+    if chunk:
+        yield bytes(chunk)
+
+
 class AuditModLogs(commands.Cog):
     def __init__(self) -> None:
         self.running_channels: t.Set[int] = set()
@@ -69,6 +84,13 @@ class AuditModLogs(commands.Cog):
         earliest: t.Optional[discord.Message] = None
         latest: t.Optional[discord.Message] = None
         links = io.StringIO()
+        progress = await interaction.followup.send(
+            f"Scanning {channel.mention}: **0** messages processed; **0** matches found. "
+            "The total message count is unavailable.",
+            ephemeral=True,
+            wait=True,
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
         async def scan() -> None:
             nonlocal scanned, matched, earliest, latest
@@ -76,14 +98,23 @@ class AuditModLogs(commands.Cog):
                 limit=None, oldest_first=True, before=interaction.created_at
             ):
                 scanned += 1
-                if not matches_api_log(message):
-                    continue
-                matched += 1
-                links.write(message.jump_url + "\n")
-                if earliest is None or message.created_at < earliest.created_at:
-                    earliest = message
-                if latest is None or message.created_at > latest.created_at:
-                    latest = message
+                if matches_api_log(message):
+                    matched += 1
+                    links.write(message.jump_url + "\n")
+                    if earliest is None or message.created_at < earliest.created_at:
+                        earliest = message
+                    if latest is None or message.created_at > latest.created_at:
+                        latest = message
+                if scanned % 1000 == 0:
+                    try:
+                        await progress.edit(
+                            content=f"Scanning {channel.mention}: **{scanned:,}** messages "
+                            f"processed; **{matched:,}** matches found. "
+                            "The total message count is unavailable."
+                        )
+                    except discord.HTTPException:
+                        # A status update failure should not interrupt the history scan.
+                        pass
 
         incomplete = ""
         try:
@@ -112,19 +143,60 @@ class AuditModLogs(commands.Cog):
             text="Case-insensitive: includes 'api'; excludes 'channel' and 'for user' "
             "in message content or any embed title/description."
         )
-        report = discord.File(
-            io.BytesIO((links.getvalue() or "No matching messages.\n").encode("utf-8")),
-            filename="api-mod-log-message-links.txt",
-        )
         try:
-            await interaction.followup.send(
-                embed=summary,
-                file=report,
-                ephemeral=True,
-                allowed_mentions=discord.AllowedMentions.none(),
+            await progress.edit(
+                content=(
+                    f"{'Scan stopped (incomplete)' if incomplete else 'Scan complete'}: "
+                    f"**{scanned:,}** messages processed; **{matched:,}** matches found."
+                )
             )
-        finally:
-            report.close()
+        except discord.HTTPException:
+            pass
+        await interaction.followup.send(
+            embed=summary, ephemeral=True, allowed_mentions=discord.AllowedMentions.none()
+        )
+        await self.send_link_report(interaction, links.getvalue() or "No matching messages.\n")
+
+    async def send_link_report(
+        self, interaction: discord.Interaction[commands.Bot], text: str
+    ) -> None:
+        # Leave a little headroom below Discord's limit and upload each part separately.
+        max_bytes = max(1, int(interaction.filesize_limit * 0.95))
+        try:
+            parts = list(split_link_report(text, max_bytes))
+        except ValueError:
+            await interaction.followup.send(
+                "The link report could not fit Discord's upload limit. "
+                "The audit summary above is still available; no report was saved to disk.",
+                ephemeral=True,
+            )
+            return
+        for index, part in enumerate(parts, start=1):
+            filename = (
+                "api-mod-log-message-links.txt"
+                if len(parts) == 1
+                else f"api-mod-log-message-links-part-{index}-of-{len(parts)}.txt"
+            )
+            buffer = io.BytesIO(part)
+            report = discord.File(buffer, filename=filename)
+            try:
+                await interaction.followup.send(
+                    content=f"Message links (part {index} of {len(parts)}).",
+                    file=report,
+                    ephemeral=True,
+                    allowed_mentions=discord.AllowedMentions.none(),
+                )
+            except discord.HTTPException:
+                await interaction.followup.send(
+                    f"Discord rejected link-file part {index} of {len(parts)}. "
+                    f"{index - 1} parts were uploaded; the remaining links were not delivered. "
+                    "The audit summary above is still available. No report was saved to disk.",
+                    ephemeral=True,
+                )
+                return
+            finally:
+                report.close()
+                buffer.close()
 
 
 async def setup(bot: Bot) -> None:

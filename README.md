@@ -166,3 +166,11 @@ message links in chronological order. The attachment is built in memory and
 is not saved to disk. Both the moderator and bot need View Channel and Read
 Message History permissions. Interrupted scans or scans exceeding 12 minutes
 are explicitly reported as incomplete.
+One private status message updates every 1,000 processed messages with the
+processed and matching counts, then updates once more when the scan finishes.
+Discord does not provide the total channel message count, so progress has no denominator.
+The summary is sent separately from attachments. Reports exceeding Discord's
+interaction upload limit are split into numbered text files at complete link
+boundaries, with each part uploaded separately. If an upload is rejected, the
+bot reports which part failed and how many parts were delivered; the summary
+remains available. All parts are built in memory and never saved to disk.
