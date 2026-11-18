@@ -112,9 +112,10 @@ Helpful Old Man is licensed under the [MIT License]
 
 ## Link API key developers
 
-Configure `HOM_API_CONSUMER_ROLE` with the API Consumer role ID for the server.
-Moderators can then run `/link-user-api-keys developers:<devs.csv>` with a UTF-8
-CSV containing a `developer` column. The bot fetches the server's members and
+Moderators can run `/link-user-api-keys developers:<devs.csv> api_consumer_role:<role>`
+and select the server's API Consumer role directly in the command. No role ID
+environment variable is needed. Upload a UTF-8 CSV containing a `developer` column.
+The bot fetches the server's members and
 matches exact, case-sensitive usernames or legacy `name#1234` tags. It does not
 match nicknames, display names, or guess old usernames. Duplicate CSV values are
 processed once. Ambiguous matches are skipped. The bot re-fetches each matched

@@ -11,7 +11,6 @@ from discord.ext import commands
 
 from hom import utils
 from hom.bot import Bot
-from hom.config import Config
 
 MAX_CSV_BYTES = 1024 * 1024
 MAX_DEVELOPERS = 5000
@@ -65,6 +64,7 @@ class ApiKeys(commands.Cog):
     @app_commands.guild_only()  # type: ignore
     @app_commands.describe(
         developers="UTF-8 CSV containing a developer column (for example devs.csv).",
+        api_consumer_role="The API Consumer role to check and assign to matched users.",
         dry_run="Preview matches without updating keys (default: True). Set False to apply updates.",
         counts_only="Show category totals instead of individual usernames (default: False).",
     )
@@ -76,6 +76,7 @@ class ApiKeys(commands.Cog):
         self,
         interaction: discord.Interaction[commands.Bot],
         developers: discord.Attachment,
+        api_consumer_role: discord.Role,
         dry_run: bool = True,
         counts_only: bool = False,
     ) -> None:
@@ -86,10 +87,10 @@ class ApiKeys(commands.Cog):
 
         assert interaction.guild
         guild = interaction.guild
-        role_id = Config.HOM_API_CONSUMER_ROLE
-        if not role_id or guild.get_role(role_id) is None:
+        role_id = api_consumer_role.id
+        if guild.get_role(role_id) is None:
             await interaction.followup.send(
-                "Configure HOM_API_CONSUMER_ROLE with this server's API Consumer role ID first.",
+                "The selected API Consumer role is no longer available in this server.",
                 ephemeral=True,
             )
             return
