@@ -1,5 +1,6 @@
 import asyncio
 import io
+import time
 import typing as t
 
 import discord
@@ -21,7 +22,38 @@ def matches_api_log(message: discord.Message) -> bool:
     )
 
 
-def split_link_report(text: str, max_bytes: int) -> t.Iterator[bytes]:
+def format_audit_message(message: discord.Message) -> str:
+    lines = [
+        "=" * 72,
+        f"Message link: {message.jump_url}",
+        f"Created at: {message.created_at.isoformat()}",
+        f"Bot: {message.author} (ID: {message.author.id})",
+        "",
+        "Message content:",
+        message.content or "(none)",
+    ]
+    for index, embed in enumerate(message.embeds, start=1):
+        lines.extend(
+            [
+                "",
+                f"Embed {index}:",
+                f"Title: {embed.title or '(none)'}",
+                "Description:",
+                embed.description or "(none)",
+            ]
+        )
+        if embed.url:
+            lines.append(f"URL: {embed.url}")
+        if embed.author.name:
+            lines.append(f"Author: {embed.author.name}")
+        for field in embed.fields:
+            lines.extend([f"Field: {field.name}", str(field.value)])
+        if embed.footer.text:
+            lines.append(f"Footer: {embed.footer.text}")
+    return "\n".join(lines) + "\n\n"
+
+
+def split_audit_report(text: str, max_bytes: int) -> t.Iterator[bytes]:
     """Split on complete lines, measuring the encoded upload size."""
     chunk = bytearray()
     for line in io.StringIO(text):
@@ -83,7 +115,7 @@ class AuditModLogs(commands.Cog):
         scanned = matched = 0
         earliest: t.Optional[discord.Message] = None
         latest: t.Optional[discord.Message] = None
-        links = io.StringIO()
+        report_text = io.StringIO()
         progress = await interaction.followup.send(
             f"Scanning {channel.mention}: **0** messages processed; **0** matches found. "
             "The total message count is unavailable.",
@@ -100,7 +132,7 @@ class AuditModLogs(commands.Cog):
                 scanned += 1
                 if matches_api_log(message):
                     matched += 1
-                    links.write(message.jump_url + "\n")
+                    report_text.write(format_audit_message(message))
                     if earliest is None or message.created_at < earliest.created_at:
                         earliest = message
                     if latest is None or message.created_at > latest.created_at:
@@ -117,6 +149,7 @@ class AuditModLogs(commands.Cog):
                         pass
 
         incomplete = ""
+        started_at = time.monotonic()
         try:
             # Leave time to deliver results before the interaction token expires.
             await asyncio.wait_for(scan(), timeout=720)
@@ -125,11 +158,15 @@ class AuditModLogs(commands.Cog):
         except discord.HTTPException:
             incomplete = "Discord interrupted the history scan; these results are incomplete.\n\n"
 
+        elapsed_seconds = int(time.monotonic() - started_at)
+        minutes, seconds = divmod(elapsed_seconds, 60)
+
         summary = discord.Embed(
             title="API moderator log audit",
             description=(
                 f"{incomplete}Channel: {channel.mention}\n"
-                f"Messages scanned: **{scanned}**\nMatching bot messages: **{matched}**"
+                f"Messages scanned: **{scanned}**\nMatching bot messages: **{matched}**\n"
+                f"Scan duration: **{minutes}m {seconds}s**"
             ),
         )
         for label, found in (("Earliest match", earliest), ("Latest match", latest)):
@@ -155,41 +192,43 @@ class AuditModLogs(commands.Cog):
         await interaction.followup.send(
             embed=summary, ephemeral=False, allowed_mentions=discord.AllowedMentions.none()
         )
-        await self.send_link_report(interaction, links.getvalue() or "No matching messages.\n")
+        await self.send_audit_report(
+            interaction, report_text.getvalue() or "No matching messages.\n"
+        )
 
-    async def send_link_report(
+    async def send_audit_report(
         self, interaction: discord.Interaction[commands.Bot], text: str
     ) -> None:
         # Leave a little headroom below Discord's limit and upload each part separately.
         max_bytes = max(1, int(interaction.filesize_limit * 0.95))
         try:
-            parts = list(split_link_report(text, max_bytes))
+            parts = list(split_audit_report(text, max_bytes))
         except ValueError:
             await interaction.followup.send(
-                "The link report could not fit Discord's upload limit. "
+                "The audit report could not fit Discord's upload limit. "
                 "The audit summary above is still available; no report was saved to disk.",
                 ephemeral=False,
             )
             return
         for index, part in enumerate(parts, start=1):
             filename = (
-                "api-mod-log-message-links.txt"
+                "api-mod-log-messages.txt"
                 if len(parts) == 1
-                else f"api-mod-log-message-links-part-{index}-of-{len(parts)}.txt"
+                else f"api-mod-log-messages-part-{index}-of-{len(parts)}.txt"
             )
             buffer = io.BytesIO(part)
             report = discord.File(buffer, filename=filename)
             try:
                 await interaction.followup.send(
-                    content=f"Message links (part {index} of {len(parts)}).",
+                    content=f"Matching messages (part {index} of {len(parts)}).",
                     file=report,
                     ephemeral=False,
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
             except discord.HTTPException:
                 await interaction.followup.send(
-                    f"Discord rejected link-file part {index} of {len(parts)}. "
-                    f"{index - 1} parts were uploaded; the remaining links were not delivered. "
+                    f"Discord rejected report part {index} of {len(parts)}. "
+                    f"{index - 1} parts were uploaded; the remaining report was not delivered. "
                     "The audit summary above is still available. No report was saved to disk.",
                     ephemeral=False,
                 )

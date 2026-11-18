@@ -161,9 +161,11 @@ the selected text channel, up to the time the command was invoked. A message
 matches if its content or any embed title/description contains `api`, and none
 of those contain `channel` or `for user` (all comparisons ignore case).
 The public response in the channel where the command was invoked includes the
-match count, the earliest and latest matching
-messages with timestamps and links, and a text attachment listing all matching
-message links in chronological order. The attachment is built in memory and
+match count, scan duration in minutes and seconds, the earliest and latest matching
+messages with timestamps and links, and a text attachment containing matching
+messages in chronological order. Each entry includes the message link, timestamp,
+bot identity, full message content, and each embed's title, description, fields,
+URL, author, and footer where present. The attachment is built in memory and
 is not saved to disk. Both the moderator and bot need View Channel and Read
 Message History permissions. Interrupted scans or scans exceeding 12 minutes
 are explicitly reported as incomplete.
@@ -173,7 +175,7 @@ Discord does not provide the total channel message count, so progress has no den
 The final summary, attachments, and any upload-failure notices are public so they
 remain accessible after the command finishes; progress updates remain private.
 The summary is sent separately from attachments. Reports exceeding Discord's
-interaction upload limit are split into numbered text files at complete link
+interaction upload limit are split into numbered text files at complete line
 boundaries, with each part uploaded separately. If an upload is rejected, the
 bot reports which part failed and how many parts were delivered; the summary
 remains available. All parts are built in memory and never saved to disk.
