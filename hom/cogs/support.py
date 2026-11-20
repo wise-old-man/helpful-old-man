@@ -45,6 +45,8 @@ class Support(commands.GroupCog, name="support"):
         guild = self.bot.get_guild(payload.guild_id)
         if guild is None:
             return
+
+        # Notify mod logs when a departing member had the API Consumer role.
         user = payload.user
         if isinstance(user, discord.Member) and any(
             role.name.casefold().replace("_", " ") == "api consumer" for role in user.roles
@@ -69,6 +71,8 @@ class Support(commands.GroupCog, name="support"):
                     )
                 except discord.HTTPException:
                     logging.exception("Could not log API Consumer departure for %s", user.id)
+
+        # Notify every open ticket belonging to the departing user.
         category = utils.get_category(guild, Config.HOM_TICKET_CATEGORY)
         if category is None:
             return
