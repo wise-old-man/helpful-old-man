@@ -182,6 +182,7 @@ class Support(commands.GroupCog, name="support"):
         if not (og_user := await self.get_og_user(interaction)):
             return None
 
+        assert isinstance(message.channel, discord.TextChannel)
         await interaction.followup.send(f"Pinging user to check the channel.", ephemeral=True)
         await message.channel.send(
             (
@@ -191,6 +192,18 @@ class Support(commands.GroupCog, name="support"):
             ),
             view=views.SupportMessage(),
         )
+        topic = (message.channel.topic or "").casefold()
+        if "opt out" in topic:
+            await message.channel.send(
+                "Opt out status will not persist if you name change unless you report them "
+                "on the wise old man website here: https://wiseoldman.net/names\n\n"
+                "It also does not prevent people from looking at your official osrs hiscores."
+            )
+        if "api key" in topic:
+            await message.channel.send(
+                "Your API key may be revoked if you leave the Wise Old Man discord server. "
+                "Please stay in the server so it is easier for us to contact you if needed."
+            )
 
     async def support_redirect(
         self, interaction: discord.Interaction[commands.Bot], message: discord.Message
