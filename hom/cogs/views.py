@@ -657,23 +657,14 @@ async def _close_ticket(interaction: discord.Interaction[commands.Bot]) -> None:
     await interaction.response.defer()
 
     ticket_user = await utils.get_user_by_original_message(interaction.channel)
-    if ticket_user is None:
-        await interaction.followup.send(
-            "Could not determine the ticket owner. The ticket has not been closed.",
-            ephemeral=True,
-        )
-        return
-    if not isinstance(ticket_user, discord.Member):
+    if ticket_user is not None and not isinstance(ticket_user, discord.Member):
         try:
             ticket_user = await interaction.channel.guild.fetch_member(ticket_user.id)
         except discord.NotFound:
-            await interaction.followup.send(
-                "The ticket owner is no longer in the server. The ticket has not been closed.",
-                ephemeral=True,
-            )
-            return
+            ticket_user = None
 
-    await interaction.channel.set_permissions(ticket_user, overwrite=None)
+    if ticket_user is not None:
+        await interaction.channel.set_permissions(ticket_user, overwrite=None)
     embed = discord.Embed(description=f"{interaction.user.mention} has closed the ticket.")
     await interaction.followup.send(
         ephemeral=False, embed=embed, view=SupportMessageCloseChannel()

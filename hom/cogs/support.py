@@ -1,3 +1,4 @@
+import logging
 import typing as t
 
 import discord
@@ -38,6 +39,24 @@ class Support(commands.GroupCog, name="support"):
                 type=AppCommandType.message,
             )
         )
+
+    @commands.Cog.listener()
+    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:
+        guild = self.bot.get_guild(payload.guild_id)
+        if guild is None:
+            return
+        category = utils.get_category(guild, Config.HOM_TICKET_CATEGORY)
+        if category is None:
+            return
+        for channel in category.text_channels:
+            if channel.overwrites_for(payload.user).view_channel:
+                try:
+                    await channel.send(
+                        f"{payload.user.mention} has left the Discord server.",
+                        allowed_mentions=discord.AllowedMentions.none(),
+                    )
+                except discord.HTTPException:
+                    logging.exception("Could not post departure notice in ticket %s", channel.id)
 
     @commands.has_role(Config.HOM_MOD_ROLE)
     @commands.command(name="sync")
