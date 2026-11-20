@@ -1,3 +1,4 @@
+import logging
 import typing as t
 
 import discord
@@ -38,6 +39,52 @@ class Support(commands.GroupCog, name="support"):
                 type=AppCommandType.message,
             )
         )
+
+    @commands.Cog.listener()
+    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:
+        guild = self.bot.get_guild(payload.guild_id)
+        if guild is None:
+            return
+
+        # Notify mod logs when a departing member had the API Consumer role.
+        user = payload.user
+        if isinstance(user, discord.Member) and any(
+            role.name.casefold().replace("_", " ") == "api consumer" for role in user.roles
+        ):
+            log_channel = utils.get_channel(guild, Config.HOM_MOD_LOG_CHANNEL)
+            if log_channel is None:
+                logging.warning(
+                    "Could not find mod log channel for departing API Consumer %s", user.id
+                )
+            else:
+                embed = discord.Embed(
+                    title="API Consumer left the server",
+                    description=f"{user.mention} has left the Discord server. "
+                    "They had the API Consumer role when they left.",
+                    color=Constants.ORANGE,
+                )
+                embed.add_field(name="Username", value=user.name)
+                embed.add_field(name="User ID", value=str(user.id))
+                try:
+                    await log_channel.send(
+                        embed=embed, allowed_mentions=discord.AllowedMentions.none()
+                    )
+                except discord.HTTPException:
+                    logging.exception("Could not log API Consumer departure for %s", user.id)
+
+        # Notify every open ticket belonging to the departing user.
+        category = utils.get_category(guild, Config.HOM_TICKET_CATEGORY)
+        if category is None:
+            return
+        for channel in category.text_channels:
+            if channel.overwrites_for(payload.user).view_channel:
+                try:
+                    await channel.send(
+                        f"{payload.user.mention} has left the Discord server.",
+                        allowed_mentions=discord.AllowedMentions.none(),
+                    )
+                except discord.HTTPException:
+                    logging.exception("Could not post departure notice in ticket %s", channel.id)
 
     @commands.has_role(Config.HOM_MOD_ROLE)
     @commands.command(name="sync")
