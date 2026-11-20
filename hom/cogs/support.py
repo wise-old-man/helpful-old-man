@@ -72,19 +72,22 @@ class Support(commands.GroupCog, name="support"):
                 except discord.HTTPException:
                     logging.exception("Could not log API Consumer departure for %s", user.id)
 
-        # Notify every open ticket belonging to the departing user.
+        # Identify tickets by their original message; departure may remove access overrides.
         category = utils.get_category(guild, Config.HOM_TICKET_CATEGORY)
         if category is None:
             return
         for channel in category.text_channels:
-            if channel.overwrites_for(payload.user).view_channel:
-                try:
+            try:
+                owner = await utils.get_user_by_original_message(channel)
+                if owner is not None and owner.id == user.id:
                     await channel.send(
-                        f"{payload.user.mention} has left the Discord server.",
+                        f"{user.mention} has left the Discord server.",
                         allowed_mentions=discord.AllowedMentions.none(),
                     )
-                except discord.HTTPException:
-                    logging.exception("Could not post departure notice in ticket %s", channel.id)
+            except discord.HTTPException:
+                logging.exception(
+                    "Could not check or notify ticket %s on member departure", channel.id
+                )
 
     @commands.has_role(Config.HOM_MOD_ROLE)
     @commands.command(name="sync")
