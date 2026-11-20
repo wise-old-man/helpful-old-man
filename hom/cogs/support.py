@@ -45,6 +45,30 @@ class Support(commands.GroupCog, name="support"):
         guild = self.bot.get_guild(payload.guild_id)
         if guild is None:
             return
+        user = payload.user
+        if isinstance(user, discord.Member) and any(
+            role.name.casefold().replace("_", " ") == "api consumer" for role in user.roles
+        ):
+            log_channel = utils.get_channel(guild, Config.HOM_MOD_LOG_CHANNEL)
+            if log_channel is None:
+                logging.warning(
+                    "Could not find mod log channel for departing API Consumer %s", user.id
+                )
+            else:
+                embed = discord.Embed(
+                    title="API Consumer left the server",
+                    description=f"{user.mention} has left the Discord server. "
+                    "They had the API Consumer role when they left.",
+                    color=Constants.ORANGE,
+                )
+                embed.add_field(name="Username", value=user.name)
+                embed.add_field(name="User ID", value=str(user.id))
+                try:
+                    await log_channel.send(
+                        embed=embed, allowed_mentions=discord.AllowedMentions.none()
+                    )
+                except discord.HTTPException:
+                    logging.exception("Could not log API Consumer departure for %s", user.id)
         category = utils.get_category(guild, Config.HOM_TICKET_CATEGORY)
         if category is None:
             return
