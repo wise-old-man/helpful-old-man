@@ -411,12 +411,13 @@ class ApproveDenyGroupRequest(discord.ui.View):
         try:
             dm = await ticket_user.send("Your verification code is being reset.")
         except discord.HTTPException:
-            await channel.send(
+            await interaction.followup.send(
                 embed=discord.Embed(
                     description=f"Failed to send DM to {ticket_user.mention}. "
                     "Please go into Privacy Settings and enable Direct Messages.",
                     colour=Constants.RED,
                 ),
+                ephemeral=False,
             )
             return
 
@@ -445,7 +446,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
             "Verification code successfully reset. "
             f"A DM has been sent to {ticket_user.mention}."
         )
-        await channel.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=False)
 
     @discord.ui.button(
         emoji=Constants.PEN,
