@@ -417,7 +417,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
                     "Please go into Privacy Settings and enable Direct Messages.",
                     colour=Constants.RED,
                 ),
-                ephemeral=True,
+                ephemeral=False,
             )
             return
 
@@ -446,7 +446,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
             "Verification code successfully reset. "
             f"A DM has been sent to {ticket_user.mention}."
         )
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=False)
 
     @discord.ui.button(
         emoji=Constants.PEN,
