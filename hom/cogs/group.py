@@ -396,15 +396,6 @@ class ApproveDenyGroupRequest(discord.ui.View):
             await interaction.followup.send("Could not find group...", ephemeral=True)
             return
 
-        reset_code = await interaction.client.wom.reset_group_code(group_id)
-        new_code = reset_code.get("newCode") if reset_code is not None else None
-        if not isinstance(new_code, str):
-            await interaction.followup.send(
-                "Could not reset the group verification code.",
-                ephemeral=True,
-            )
-            return
-
         channel = await _get_ticket_channel(interaction)
         if channel is None:
             return
@@ -417,11 +408,36 @@ class ApproveDenyGroupRequest(discord.ui.View):
             )
             return
 
-        await ticket_user.send(
-            f"Your verification code for group [{group_id}]"
-            f"({Config.HOM_BASE_WEBSITE_URL}/groups/{group_id}) has been reset.\n"
-            f"```{new_code}```"
-            "Keep this code secret - it can be used to edit or delete your group."
+        try:
+            dm = await ticket_user.send("Your verification code is being reset.")
+        except discord.HTTPException:
+            await interaction.followup.send(
+                embed=discord.Embed(
+                    description=f"Failed to send DM to {ticket_user.mention}. "
+                    "Please go into Privacy Settings and enable Direct Messages.",
+                    colour=Constants.RED,
+                ),
+                ephemeral=True,
+            )
+            return
+
+        reset_code = await interaction.client.wom.reset_group_code(group_id)
+        new_code = reset_code.get("newCode") if reset_code is not None else None
+        if not isinstance(new_code, str):
+            await dm.edit(content="Failed to generate a new verification code.")
+            await interaction.followup.send(
+                "Could not reset the group verification code.",
+                ephemeral=True,
+            )
+            return
+
+        await dm.edit(
+            content=(
+                f"Your verification code for group [{group_id}]"
+                f"({Config.HOM_BASE_WEBSITE_URL}/groups/{group_id}) has been reset.\n"
+                f"```{new_code}```"
+                "Keep this code secret - it can be used to edit or delete your group."
+            )
         )
         embed = discord.Embed(title="Reset Group Code", colour=discord.Colour.green())
         embed.add_field(name="Group ID", value=group_id)
