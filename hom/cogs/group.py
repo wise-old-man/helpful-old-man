@@ -377,23 +377,23 @@ class ApproveDenyGroupRequest(discord.ui.View):
         _: discord.ui.Button["ApproveDenyGroupRequest"],
     ) -> None:
         assert isinstance(interaction.user, discord.Member)
-        await interaction.response.defer(ephemeral=False)
+        await interaction.response.defer(ephemeral=True)
 
         if not any(role.id == Config.HOM_MOD_ROLE for role in interaction.user.roles):
             await interaction.followup.send(
                 await _build_group_lookup_permission_message(interaction),
-                ephemeral=False,
+                ephemeral=True,
             )
             return
 
         group_id = self.group_id or _parse_group_id(_get_embed_field_value(interaction.message, 0))
         if group_id is None:
-            await interaction.followup.send("Could not determine group ID.", ephemeral=False)
+            await interaction.followup.send("Could not determine group ID.", ephemeral=True)
             return
 
         data = await interaction.client.wom.get_group(group_id)
         if data is None:
-            await interaction.followup.send("Could not find group...", ephemeral=False)
+            await interaction.followup.send("Could not find group...", ephemeral=True)
             return
 
         channel = await _get_ticket_channel(interaction)
@@ -404,20 +404,19 @@ class ApproveDenyGroupRequest(discord.ui.View):
         if ticket_user is None:
             await interaction.followup.send(
                 "Could not determine the ticket owner.",
-                ephemeral=False,
+                ephemeral=True,
             )
             return
 
         try:
             dm = await ticket_user.send("Your verification code is being reset.")
         except discord.HTTPException:
-            await interaction.followup.send(
+            await channel.send(
                 embed=discord.Embed(
                     description=f"Failed to send DM to {ticket_user.mention}. "
                     "Please go into Privacy Settings and enable Direct Messages.",
                     colour=Constants.RED,
                 ),
-                ephemeral=False,
             )
             return
 
@@ -427,7 +426,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
             await dm.edit(content="Failed to generate a new verification code.")
             await interaction.followup.send(
                 "Could not reset the group verification code.",
-                ephemeral=False,
+                ephemeral=True,
             )
             return
 
@@ -446,7 +445,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
             "Verification code successfully reset. "
             f"A DM has been sent to {ticket_user.mention}."
         )
-        await interaction.followup.send(embed=embed, ephemeral=False)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
     @discord.ui.button(
         emoji=Constants.PEN,
