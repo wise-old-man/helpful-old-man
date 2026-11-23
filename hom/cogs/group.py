@@ -410,19 +410,13 @@ class ApproveDenyGroupRequest(discord.ui.View):
 
         try:
             dm = await ticket_user.send("Your verification code is being reset.")
-        except discord.Forbidden:
-            await interaction.followup.send(
-                f"The group verification code has not been reset because I couldn't send a DM to "
-                f"{ticket_user.mention}. Their DMs may be turned off or the bot may be blocked. "
-                "Please ask them to enable direct messages from server members in this server's "
-                "Privacy Settings and unblock the bot, then try Reset Group Code again.",
-                ephemeral=True,
-            )
-            return
         except discord.HTTPException:
             await interaction.followup.send(
-                "The group verification code has not been reset because the DM could not be sent. "
-                "Please try Reset Group Code again.",
+                embed=discord.Embed(
+                    description=f"Failed to send DM to {ticket_user.mention}. "
+                    "Please go into Privacy Settings and enable Direct Messages.",
+                    colour=Constants.RED,
+                ),
                 ephemeral=True,
             )
             return
@@ -430,36 +424,21 @@ class ApproveDenyGroupRequest(discord.ui.View):
         reset_code = await interaction.client.wom.reset_group_code(group_id)
         new_code = reset_code.get("newCode") if reset_code is not None else None
         if not isinstance(new_code, str):
-            try:
-                await dm.edit(
-                    content="We couldn't confirm that your verification code was reset. "
-                    "Please contact a moderator before trying again."
-                )
-            except discord.HTTPException:
-                pass
+            await dm.edit(content="Failed to generate a new verification code.")
             await interaction.followup.send(
-                "Could not confirm the group verification code reset. "
-                "Please check the group's status before trying again.",
+                "Could not reset the group verification code.",
                 ephemeral=True,
             )
             return
 
-        try:
-            await dm.edit(
-                content=(
-                    f"Your verification code for group [{group_id}]"
-                    f"({Config.HOM_BASE_WEBSITE_URL}/groups/{group_id}) has been reset.\n"
-                    f"```{new_code}```"
-                    "Keep this code secret - it can be used to edit or delete your group."
-                )
+        await dm.edit(
+            content=(
+                f"Your verification code for group [{group_id}]"
+                f"({Config.HOM_BASE_WEBSITE_URL}/groups/{group_id}) has been reset.\n"
+                f"```{new_code}```"
+                "Keep this code secret - it can be used to edit or delete your group."
             )
-        except discord.HTTPException:
-            await interaction.followup.send(
-                "The group verification code was reset, but I couldn't update the DM "
-                "with the new code. Please check the user's DM settings before trying again.",
-                ephemeral=True,
-            )
-            return
+        )
         embed = discord.Embed(title="Reset Group Code", colour=discord.Colour.green())
         embed.add_field(name="Group ID", value=group_id)
         embed.add_field(name="Group Name", value=str(data["name"]))
