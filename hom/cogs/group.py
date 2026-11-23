@@ -445,7 +445,7 @@ class ApproveDenyGroupRequest(discord.ui.View):
             "Verification code successfully reset. "
             f"A DM has been sent to {ticket_user.mention}."
         )
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        await channel.send(embed=embed)
 
     @discord.ui.button(
         emoji=Constants.PEN,
